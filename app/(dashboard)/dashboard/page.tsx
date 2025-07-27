@@ -38,7 +38,8 @@ export default async function DashboardPage() {
         })
         
         const links = await getUserLinks(newUser.id)
-        return <DashboardClient user={newUser} initialLinks={links} />
+        const userWithLinks = { ...newUser, links: [] }
+        return <DashboardClient user={userWithLinks} initialLinks={links} />
       } catch (error) {
         console.error('Failed to create user profile:', error)
         redirect('/error')
