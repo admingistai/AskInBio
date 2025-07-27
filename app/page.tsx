@@ -65,7 +65,7 @@ export default function OnboardingPage() {
         className={`relative z-10 flex px-6 pt-16 md:pt-20 lg:pt-24 transition-all duration-700 ${
           isOnboardingActive ? 'opacity-0 translate-y-[-20px] pointer-events-none' : 'opacity-100 translate-y-0'
         }`} 
-        style={{ minHeight: 'calc(100vh - 120px)' }}
+        style={{ minHeight: 'calc(100vh - 20px)' }}
       >
         <div className="max-w-4xl w-full mx-auto">
           {/* Content container */}

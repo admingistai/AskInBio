@@ -70,7 +70,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         />
       
       {/* Scrollable Content Container */}
-      <div className="h-screen grid grid-rows-[auto_1fr_auto]">
+      <div className="min-h-screen grid grid-rows-[auto_1fr_auto]" style={{ minHeight: 'calc(100vh + 100px)' }}>
         {/* Header Spacer */}
         <div className="h-32" />
         
