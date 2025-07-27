@@ -42,7 +42,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     
     /* Update snapshots instead of failing */
-    ignoreSnapshots: true,
+    // ignoreSnapshots: true, // This option doesn't exist in Playwright
   },
 
   /* Configure projects for different test types */
