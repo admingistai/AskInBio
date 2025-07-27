@@ -25,21 +25,38 @@ export default function OnboardingContainer({
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const [widgetHeight, setWidgetHeight] = useState(467) // Default height
   const [viewportHeight, setViewportHeight] = useState(0)
+  const [windowHeight, setWindowHeight] = useState(0)
+  const [debugInfo, setDebugInfo] = useState({ kb: 0, vp: 0, wh: 0, visible: false })
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Visual Viewport API for iOS keyboard detection
   useEffect(() => {
     const handleViewportChange = () => {
       if (typeof window !== 'undefined' && window.visualViewport) {
-        const newKeyboardHeight = window.innerHeight - window.visualViewport.height
-        setKeyboardHeight(newKeyboardHeight)
-        setIsKeyboardVisible(newKeyboardHeight > 50) // Threshold to avoid false positives
-        setViewportHeight(window.visualViewport.height || window.innerHeight)
+        const winHeight = window.innerHeight
+        const vpHeight = window.visualViewport.height
+        const vpOffsetTop = window.visualViewport.offsetTop || 0
+        const newKeyboardHeight = winHeight - vpHeight - vpOffsetTop
         
-        if (newKeyboardHeight > 0) {
+        // Debug logging
+        console.log('🔍 Viewport change:', {
+          windowHeight: winHeight,
+          visualViewportHeight: vpHeight,
+          visualViewportOffsetTop: vpOffsetTop,
+          keyboardHeight: newKeyboardHeight,
+          isKeyboardVisible: newKeyboardHeight > 30
+        })
+        
+        setKeyboardHeight(newKeyboardHeight)
+        setWindowHeight(winHeight)
+        setViewportHeight(vpHeight)
+        setIsKeyboardVisible(newKeyboardHeight > 30) // iOS keyboard is typically > 200px
+        setDebugInfo({ kb: newKeyboardHeight, vp: vpHeight, wh: winHeight, visible: newKeyboardHeight > 30 })
+        
+        if (newKeyboardHeight > 30) {
           // Keyboard is visible
-          // Calculate available space (visual viewport height minus safe margins)
-          const availableHeight = window.visualViewport.height - 40 // 40px for margins
+          // Calculate available height accounting for keyboard
+          const availableHeight = vpHeight - 20 // Small margin from top
           
           // Set widget height to fit within available space
           const newHeight = Math.min(467, availableHeight)
@@ -59,7 +76,8 @@ export default function OnboardingContainer({
 
     // Set initial viewport height on mount
     if (typeof window !== 'undefined') {
-      setViewportHeight(window.innerHeight)
+      setViewportHeight(window.visualViewport?.height || window.innerHeight)
+      setWindowHeight(window.innerHeight)
     }
 
     // Add listeners
@@ -139,14 +157,34 @@ export default function OnboardingContainer({
         width: '303px',
         height: `${widgetHeight}px`,
         left: '50%',
-        transform: 'translateX(-50%)',
-        bottom: isKeyboardVisible ? `${keyboardHeight + 20}px` : '50%',
-        marginBottom: isKeyboardVisible ? '0' : `-${widgetHeight / 2}px`,
+        ...(isKeyboardVisible ? {
+          // When keyboard is visible, position widget directly above keyboard
+          transform: 'translateX(-50%)',
+          position: 'fixed',
+          bottom: `${keyboardHeight}px`,
+          top: 'auto'
+        } : {
+          // When keyboard is hidden, center the widget
+          transform: 'translate(-50%, -50%)',
+          position: 'fixed',
+          top: '50%',
+          bottom: 'auto'
+        }),
         '--keyboard-height': `${keyboardHeight}px`,
         '--widget-height': `${widgetHeight}px`,
-        '--visual-viewport-height': `${viewportHeight}px`
+        '--visual-viewport-height': `${viewportHeight}px`,
+        '--window-height': `${windowHeight}px`,
+        willChange: 'transform'
       } as React.CSSProperties}
     >
+      {/* Debug overlay */}
+      {debugMode && (
+        <div className="absolute top-0 left-0 right-0 bg-black/50 text-white text-xs p-2 z-50">
+          <div>KB: {debugInfo.kb}px | VP: {debugInfo.vp}px | Win: {debugInfo.wh}px</div>
+          <div>Visible: {debugInfo.visible ? 'YES' : 'NO'}</div>
+        </div>
+      )}
+      
       {/* Scrollable content container */}
       <div className="onboarding-content">
         {children}
