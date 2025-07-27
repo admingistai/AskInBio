@@ -227,9 +227,9 @@ export async function signUp(formData: RegisterFormData) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { 
-        error: error.errors[0].message,
+        error: error.issues[0].message,
         code: 'VALIDATION_ERROR',
-        field: error.errors[0].path[0] as string
+        field: error.issues[0].path[0] as string
       }
     }
     
@@ -366,9 +366,9 @@ export async function updatePassword(newPassword: string, confirmPassword: strin
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { 
-        error: error.errors[0].message,
+        error: error.issues[0].message,
         code: 'VALIDATION_ERROR',
-        field: error.errors[0].path[0] as string
+        field: error.issues[0].path[0] as string
       }
     }
     
