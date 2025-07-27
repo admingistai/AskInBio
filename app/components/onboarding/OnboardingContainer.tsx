@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 
 interface OnboardingContainerProps {
@@ -30,6 +30,7 @@ export default function OnboardingContainer({
   const [debugInfo, setDebugInfo] = useState({ kb: 0, vp: 0, wh: 0, offset: 0, visible: false })
   const containerRef = useRef<HTMLDivElement>(null)
   const originalMetaViewportRef = useRef<string | null>(null)
+  const keyboardCheckIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Prevent body scrolling when keyboard is visible
   useEffect(() => {
@@ -95,49 +96,57 @@ export default function OnboardingContainer({
     }
   }, [isKeyboardVisible, isVisible]);
 
-  // Visual Viewport API for iOS keyboard detection
-  useEffect(() => {
-    const handleViewportChange = () => {
-      if (typeof window !== 'undefined' && window.visualViewport) {
-        const winHeight = window.innerHeight
-        const vpHeight = window.visualViewport.height
-        const vpOffsetTop = window.visualViewport.offsetTop || 0
-        const newKeyboardHeight = winHeight - vpHeight - vpOffsetTop
+  // Define handleViewportChange outside useEffect so it can be called from multiple places
+  const handleViewportChange = useCallback(() => {
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      const winHeight = window.innerHeight
+      const vpHeight = window.visualViewport.height
+      const vpOffsetTop = window.visualViewport.offsetTop || 0
+      const newKeyboardHeight = winHeight - vpHeight - vpOffsetTop
+      
+      // Debug logging
+      console.log('🔍 Viewport change:', {
+        windowHeight: winHeight,
+        visualViewportHeight: vpHeight,
+        visualViewportOffsetTop: vpOffsetTop,
+        keyboardHeight: newKeyboardHeight,
+        calculatedTopPosition: vpOffsetTop + vpHeight - 467, // Include offset in calculation
+        isKeyboardVisible: newKeyboardHeight > 30
+      })
+      
+      setKeyboardHeight(newKeyboardHeight)
+      setWindowHeight(winHeight)
+      setViewportHeight(vpHeight)
+      setVpOffsetTop(vpOffsetTop) // Track the offset
+      setIsKeyboardVisible(newKeyboardHeight > 30) // iOS keyboard is typically > 200px
+      setDebugInfo({ kb: newKeyboardHeight, vp: vpHeight, wh: winHeight, offset: vpOffsetTop, visible: newKeyboardHeight > 30 })
+      
+      if (newKeyboardHeight > 30) {
+        // Keyboard is visible
+        // Calculate available height accounting for keyboard
+        const availableHeight = vpHeight - 20 // Small margin from top
         
-        // Debug logging
-        console.log('🔍 Viewport change:', {
-          windowHeight: winHeight,
-          visualViewportHeight: vpHeight,
-          visualViewportOffsetTop: vpOffsetTop,
-          keyboardHeight: newKeyboardHeight,
-          calculatedTopPosition: vpOffsetTop + vpHeight - 467, // Include offset in calculation
-          isKeyboardVisible: newKeyboardHeight > 30
-        })
+        // Set widget height to fit within available space
+        const newHeight = Math.min(467, availableHeight)
+        setWidgetHeight(newHeight)
         
-        setKeyboardHeight(newKeyboardHeight)
-        setWindowHeight(winHeight)
-        setViewportHeight(vpHeight)
-        setVpOffsetTop(vpOffsetTop) // Track the offset
-        setIsKeyboardVisible(newKeyboardHeight > 30) // iOS keyboard is typically > 200px
-        setDebugInfo({ kb: newKeyboardHeight, vp: vpHeight, wh: winHeight, offset: vpOffsetTop, visible: newKeyboardHeight > 30 })
+        onKeyboardShow?.(newKeyboardHeight)
         
-        if (newKeyboardHeight > 30) {
-          // Keyboard is visible
-          // Calculate available height accounting for keyboard
-          const availableHeight = vpHeight - 20 // Small margin from top
-          
-          // Set widget height to fit within available space
-          const newHeight = Math.min(467, availableHeight)
-          setWidgetHeight(newHeight)
-          
-          onKeyboardShow?.(newKeyboardHeight)
-        } else {
-          // Keyboard is hidden
-          setWidgetHeight(467) // Reset to default
-          onKeyboardHide?.()
+        // Clear polling interval once keyboard is detected
+        if (keyboardCheckIntervalRef.current) {
+          clearInterval(keyboardCheckIntervalRef.current)
+          keyboardCheckIntervalRef.current = null
         }
+      } else {
+        // Keyboard is hidden
+        setWidgetHeight(467) // Reset to default
+        onKeyboardHide?.()
       }
     }
+  }, [onKeyboardShow, onKeyboardHide])
+
+  // Visual Viewport API for iOS keyboard detection
+  useEffect(() => {
 
     // Initial check
     handleViewportChange()
@@ -165,7 +174,7 @@ export default function OnboardingContainer({
         window.removeEventListener('resize', handleViewportChange)
       }
     }
-  }, [onKeyboardShow, onKeyboardHide])
+  }, [onKeyboardShow, onKeyboardHide, handleViewportChange])
 
   // Track focus on any input within the container
   useEffect(() => {
@@ -176,6 +185,34 @@ export default function OnboardingContainer({
       const target = e.target as HTMLElement
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
         setIsFocused(true)
+        
+        // Immediately check viewport when input is focused
+        handleViewportChange()
+        
+        // On iOS, start polling for keyboard appearance
+        // This handles the case where viewport events are delayed
+        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+          let checkCount = 0
+          const maxChecks = 10 // Check for 1 second total
+          
+          // Clear any existing interval
+          if (keyboardCheckIntervalRef.current) {
+            clearInterval(keyboardCheckIntervalRef.current)
+          }
+          
+          keyboardCheckIntervalRef.current = setInterval(() => {
+            handleViewportChange()
+            checkCount++
+            
+            // Stop checking after 1 second or if keyboard is detected
+            if (checkCount >= maxChecks || isKeyboardVisible) {
+              if (keyboardCheckIntervalRef.current) {
+                clearInterval(keyboardCheckIntervalRef.current)
+                keyboardCheckIntervalRef.current = null
+              }
+            }
+          }, 100) // Check every 100ms
+        }
       }
     }
 
@@ -192,8 +229,14 @@ export default function OnboardingContainer({
     return () => {
       container.removeEventListener('focusin', handleFocusIn)
       container.removeEventListener('focusout', handleFocusOut)
+      
+      // Clean up any polling interval
+      if (keyboardCheckIntervalRef.current) {
+        clearInterval(keyboardCheckIntervalRef.current)
+        keyboardCheckIntervalRef.current = null
+      }
     }
-  }, [])
+  }, [isKeyboardVisible, handleViewportChange]) // Add dependencies for the focus effect
 
   // Handle click outside to close
   useEffect(() => {
