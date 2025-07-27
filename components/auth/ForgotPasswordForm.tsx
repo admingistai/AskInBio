@@ -88,7 +88,7 @@ export function ForgotPasswordForm() {
             If an account exists with this email, you will receive a password reset link shortly.
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-500">
-            Don't forget to check your spam folder.
+            Don&apos;t forget to check your spam folder.
           </p>
         </div>
       </div>
