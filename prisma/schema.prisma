@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model extends Supabase auth.users
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  username    String   @unique
+  displayName String?  @map("display_name")
+  bio         String?  @db.Text
+  avatar      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  links       Link[]
+  themes      Theme[]
+  
+  @@map("users")
+}
+
+// Link model for user's links
+model Link {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String
+  url       String
+  thumbnail String?
+  clicks    Int      @default(0)
+  order     Int
+  active    Boolean  @default(true)
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clickEvents ClickEvent[]
+  
+  @@index([userId])
+  @@map("links")
+}
+
+// Theme model for customization
+enum ThemePreset {
+  DEFAULT
+  DARK
+  NEON
+  MINIMAL
+}
+
+model Theme {
+  id              String      @id @default(uuid()) @db.Uuid
+  name            String
+  preset          ThemePreset @default(DEFAULT)
+  primaryColor    String      @map("primary_color")
+  backgroundColor String      @map("background_color")
+  fontFamily      String      @map("font_family")
+  userId          String      @map("user_id") @db.Uuid
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("themes")
+}
+
+// ClickEvent model for analytics
+model ClickEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  linkId    String   @map("link_id") @db.Uuid
+  clickedAt DateTime @default(now()) @map("clicked_at")
+  country   String?
+  device    String?
+  
+  // Relations
+  link Link @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  
+  @@index([linkId])
+  @@index([clickedAt])
+  @@map("click_events")
+}
