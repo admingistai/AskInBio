@@ -559,36 +559,41 @@
     }
   }
 
-  /* Onboarding Container */
-  .onboarding-container {
+  /* Onboarding Widget */
+  .onboarding-widget {
     background: transparent;
     -webkit-tap-highlight-color: transparent;
   }
 
   /* Debug border for development */
-  .onboarding-container.debug-border {
-    border: 2px dashed rgba(255, 0, 0, 0.3);
+  .onboarding-widget.debug-border {
+    border: 2px solid rgba(255, 0, 0, 0.5);
   }
 
   /* Prevent iOS bounce and scroll */
-  .onboarding-container,
-  .onboarding-container * {
+  .onboarding-widget,
+  .onboarding-widget * {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: none;
     touch-action: pan-y;
   }
 
   /* Smooth keyboard transitions */
-  .onboarding-container {
-    transition-property: bottom, opacity;
+  .onboarding-widget {
+    transition-property: bottom, margin-bottom, opacity;
     transition-duration: 300ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Ensure proper stacking context */
-  .onboarding-container > * {
+  .onboarding-widget > * {
     position: relative;
     z-index: 1;
+  }
+
+  /* Keyboard-visible state */
+  .onboarding-widget.keyboard-visible {
+    margin-bottom: 0 !important;
   }
 
   /* Landing Page Animations */

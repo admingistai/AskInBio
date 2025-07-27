@@ -7,7 +7,7 @@ test.describe('Onboarding Container', () => {
 
   test('should show container when Get Started is clicked', async ({ page }) => {
     const button = page.locator('button:has-text("Get Started")')
-    const container = page.locator('.onboarding-container')
+    const container = page.locator('.onboarding-widget')
     
     // Initially container should not be visible
     await expect(container).toHaveCSS('opacity', '0')
@@ -28,10 +28,10 @@ test.describe('Onboarding Container', () => {
     await button.click()
     await page.waitForTimeout(1000)
     
-    const container = page.locator('.onboarding-container')
+    const container = page.locator('.onboarding-widget')
     await expect(container).toHaveClass(/debug-border/)
     
-    // Check for red dashed border
+    // Check for red solid border
     const borderStyle = await container.evaluate((el) => {
       const styles = window.getComputedStyle(el)
       return {
@@ -40,20 +40,24 @@ test.describe('Onboarding Container', () => {
       }
     })
     
-    expect(borderStyle.borderStyle).toContain('dashed')
+    expect(borderStyle.borderStyle).toContain('solid')
   })
 
-  test('should be fixed positioned and full viewport', async ({ page }) => {
+  test('should be fixed positioned and centered', async ({ page }) => {
     const button = page.locator('button:has-text("Get Started")')
     await button.click()
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1200)
     
-    const container = page.locator('.onboarding-container')
+    const container = page.locator('.onboarding-widget')
     
     await expect(container).toHaveCSS('position', 'fixed')
-    await expect(container).toHaveCSS('left', '0px')
-    await expect(container).toHaveCSS('right', '0px')
-    await expect(container).toHaveCSS('top', '0px')
+    await expect(container).toHaveCSS('width', '303px')
+    
+    // Check that it's horizontally centered using transform
+    const transform = await container.evaluate((el) => {
+      return window.getComputedStyle(el).transform
+    })
+    expect(transform).toContain('matrix') // transform: translateX(-50%) becomes a matrix
   })
 
   test('should close when close button is clicked', async ({ page }) => {
@@ -65,7 +69,7 @@ test.describe('Onboarding Container', () => {
     await closeButton.click()
     
     // Container should fade out
-    const container = page.locator('.onboarding-container')
+    const container = page.locator('.onboarding-widget')
     await expect(container).toHaveCSS('opacity', '0')
     
     // Get Started button should reappear
@@ -74,15 +78,18 @@ test.describe('Onboarding Container', () => {
 
   test('should have smooth fade transition', async ({ page }) => {
     const button = page.locator('button:has-text("Get Started")')
-    const container = page.locator('.onboarding-container')
+    const container = page.locator('.onboarding-widget')
     
-    // Check transition property
-    const transitionProperty = await container.evaluate((el) => {
-      return window.getComputedStyle(el).transitionProperty
+    // Check transition duration and timing
+    const transitionDuration = await container.evaluate((el) => {
+      return window.getComputedStyle(el).transitionDuration
+    })
+    const transitionTiming = await container.evaluate((el) => {
+      return window.getComputedStyle(el).transitionTimingFunction
     })
     
-    expect(transitionProperty).toContain('opacity')
-    expect(transitionProperty).toContain('bottom')
+    expect(transitionDuration).toBe('0.3s') // 300ms duration
+    expect(transitionTiming).toBe('cubic-bezier(0, 0, 0.2, 1)') // Tailwind's ease-out
   })
 
   test('should contain test input for keyboard detection', async ({ page }) => {
@@ -100,7 +107,7 @@ test.describe('Onboarding Container', () => {
     await button.click()
     await page.waitForTimeout(1000)
     
-    const container = page.locator('.onboarding-container')
+    const container = page.locator('.onboarding-widget')
     const zIndex = await container.evaluate((el) => {
       return window.getComputedStyle(el).zIndex
     })

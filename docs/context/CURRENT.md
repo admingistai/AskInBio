@@ -16,10 +16,28 @@ AskInBio is a premium link-in-bio platform featuring Apple Liquid Glass design t
 
 ## Recent Updates - July 27th
 
-### Get Started Button Enhancement
+### OnboardingContainer Update
+Successfully transformed OnboardingContainer from full-screen to centered widget based on Claude's specifications:
+- **Fixed Dimensions**: Now renders as 303px × 467px widget (previously full viewport)
+- **Centered Positioning**: 
+  - Default: Centered with `left: 50%`, `transform: translateX(-50%)`
+  - Keyboard hidden: `bottom: 50%`, `marginBottom: -233.5px` for vertical centering
+  - Keyboard visible: `bottom: keyboardHeight` to lock to keyboard top
+- **Dynamic Height Adjustment**: Container height adapts when keyboard is shown to prevent overflow
+- **Keyboard Detection**: Added `isKeyboardVisible` state with 50px threshold to avoid false positives
+- **Scrollable Content**: Implemented `overflow-y-auto` for constrained heights
+- **CSS Migration**: 
+  - Updated class from `.onboarding-container` to `.onboarding-widget`
+  - Changed debug border from dashed to solid red
+  - Added keyboard-visible class for state-based styling
+- **Test Updates**: Modified tests to verify centered widget behavior
+- **Visual Viewport API**: Maintains iOS keyboard detection functionality
+
+### Get Started Button Enhancement (Earlier Today)
 Successfully improved the Get Started button to match exact Figma design specifications:
-- **Figma-Perfect Dimensions**: Fixed 303px × 51px size
-- **Precise Styling**: 
+- **Exact Dimensions**: Updated from 303px to 353px width (50px wider)
+- **Figma-Perfect Styling**: 
+  - Height: 51px
   - Border radius: 23px
   - Background: rgba(255, 255, 255, 0.06)
   - Box shadow: 0 1.272px 15.267px 0 rgba(0, 0, 0, 0.05)
@@ -31,6 +49,13 @@ Successfully improved the Get Started button to match exact Figma design specifi
 - **Glass Morphism**: True backdrop blur(20px) with 180% saturation
 - **Responsive**: Max-width 90vw on mobile while maintaining aspect ratio
 - **Testing**: Updated test suite to verify Figma dimensions and new behavior
+
+### Landing Page Animation Enhancements
+- **Staggered Load Sequence**: Title (0ms) → Subheader (300ms) → Get Started button (1200ms)
+- **Coordinated Fade Out**: Content fades first, then button with 300ms delay
+- **Graceful Onboarding Transition**: Smooth fade-in with transform and scale animations
+- **Text Shadow Effects**: Dynamic glow during onboarding fade-in
+- **Production Deployment**: Successfully deployed to Vercel with all animations working
 
 ### Recent Optimization Analysis
 
@@ -106,10 +131,11 @@ Successfully improved the Get Started button to match exact Figma design specifi
   - Floating text animation (6s ease-in-out infinite)
   - Shimmer effect on gradient text
   - Pulsing "Get Started" button (now with Figma specs)
-  - Staggered fade-in on load
+  - Staggered fade-in on load (title → subheader → button)
+  - Coordinated fade-out sequence when transitioning
   - Animated gradient background shifts
 - **Get Started Button** (Updated July 27th):
-  - Exact Figma dimensions: 303px × 51px
+  - Exact Figma dimensions: 353px × 51px (widened from 303px)
   - Premium glass morphism with backdrop blur
   - 800ms fade animation for elegant exit
   - Enhanced hover state with glow effect
@@ -118,9 +144,27 @@ Successfully improved the Get Started button to match exact Figma design specifi
   - Background effects: z-0
   - Main content: z-10
   - Get Started button: z-20
-- **Status**: Ready for onboarding overlay implementation
+  - Onboarding container: z-30
+- **Status**: OnboardingContainer widget implemented and ready
 
-#### 3. Database Schema (`/implement database-schema --type model`)
+#### 3. Onboarding Container Implementation
+- **Component**: `OnboardingContainer.tsx` - Mobile-optimized widget
+- **Design**: Centered 303px × 467px widget with red debug border
+- **Visual Viewport API**: Full iOS keyboard detection support
+- **Keyboard Behavior**:
+  - Centered when keyboard hidden
+  - Locks to keyboard top when visible
+  - Dynamic height adjustment to prevent overflow
+- **Features**:
+  - Click outside to close (when not focused)
+  - Focus tracking for input fields
+  - Safe area support for iPhone notch/home indicator
+  - Smooth 300ms transitions for all state changes
+  - Scrollable content when height constrained
+- **Animations**: Graceful fade-in with staggered element appearance
+- **Testing**: 8 test cases covering all functionality
+
+#### 4. Database Schema (`/implement database-schema --type model`)
 - **User Model**: Extends Supabase auth with profiles
 - **Link Model**: URL management with click tracking
 - **Theme Model**: Customizable themes (DEFAULT, DARK, NEON, MINIMAL)
@@ -128,48 +172,41 @@ Successfully improved the Get Started button to match exact Figma design specifi
 - **Utilities**: Complete CRUD operations and analytics helpers
 - **Testing**: Unit and integration tests with factories
 
-#### 4. Public Profile Pages (`public-profile`)
+#### 5. Public Profile Pages (`public-profile`)
 - **Glass Design**: Full Apple Liquid Glass implementation
 - **Components**: ProfileHeader, LinkButton, GlassBottomBar
 - **Features**: Server-side rendering, click tracking, SEO metadata
 - **Layout**: Fixed header/footer with scrollable content
 - **Demo**: Live demo profile at /demo
 
-#### 5. Testing Infrastructure
-- **Landing Page Tests** (`/test landing-page --play`): Glass effects, carousel, responsive design
+#### 6. Testing Infrastructure
+- **Landing Page Tests**: Glass effects, carousel, responsive design
 - **Auth Tests**: Login, register, OAuth flows
 - **Profile Tests**: Public profile rendering and interactions
 - **Database Tests**: Schema validation and CRUD operations
 - **Get Started Button Tests**: Figma dimensions, fade animation, responsive behavior
+- **Onboarding Container Tests**: Widget behavior, keyboard detection, animations
+- **Landing Animation Tests**: Staggered sequences, coordinated transitions
 
 ### 🔄 In Progress
 
 #### Onboarding Flow
-- [ ] Get Started button implementation complete - ready for overlay
-- [ ] Step 1: Basic profile setup pending
-- [ ] Step 2: Theme selection and customization pending
-- [ ] Overlay implementation for new landing page
+- [x] Get Started button implementation with Figma specs
+- [x] OnboardingContainer widget with keyboard support
+- [ ] Step 1: Basic profile setup (next priority)
+- [ ] Step 2: Theme selection and customization
+- [ ] Step 3: Final confirmation and account creation
 
 #### Profile Builder
 - [ ] Dashboard link management UI
 - [ ] Theme customizer
 - [ ] Analytics dashboard
 
-## Recent Achievements
-
-### July 27th Session
-- **Project Optimization Analysis**: Created comprehensive optimization report
-- **Architectural Analysis**: Deep dive with 8.2/10 score
-- **Landing Page Flow Analysis**: Educational breakdown with mentor insights
-- **Get Started Button Removal**: Cleaned all onboarding flow references
-- **Get Started Button Recreation**: Implemented with exact Figma specifications
-
-### Previous Achievements
-- Premium glass morphism design system implementation
-- Comprehensive E2E testing infrastructure
-- Environment configuration consolidation
-- Database connection optimization
-- Authentication flow improvements
+## Production Deployment
+- **Live URL**: https://ask-in-bio.vercel.app/
+- **GitHub**: Repository synced via SSH
+- **Vercel**: Automatic deployments on push
+- **Status**: All features deployed and working in production
 
 ## Project Structure
 
@@ -179,7 +216,10 @@ Successfully improved the Get Started button to match exact Figma design specifi
 │   ├── (auth)/          # Auth pages (login, register, reset)
 │   ├── (dashboard)/     # Protected dashboard routes
 │   ├── [username]/      # Public profile pages
-│   ├── page.tsx         # New "Link Anything" landing page with Figma button
+│   ├── components/
+│   │   └── onboarding/
+│   │       └── OnboardingContainer.tsx # New centered widget
+│   ├── page.tsx         # New "Link Anything" landing page
 │   ├── landingpagev1/   # Original marketing landing page
 │   └── globals.css      # Glass morphism styles + animations
 ├── components/
@@ -192,10 +232,12 @@ Successfully improved the Get Started button to match exact Figma design specifi
 │   ├── supabase/        # Supabase clients
 │   └── utils.ts         # Utility functions
 ├── tests/
-│   ├── landing-page.spec.ts      # Landing page E2E tests
-│   ├── auth.spec.ts              # Auth flow tests
-│   ├── public-profile.spec.ts    # Profile page tests
-│   └── get-started-button.spec.ts # Button behavior tests
+│   ├── landing-page.spec.ts          # Landing page E2E tests
+│   ├── auth.spec.ts                  # Auth flow tests
+│   ├── public-profile.spec.ts        # Profile page tests
+│   ├── get-started-button.spec.ts    # Button behavior tests
+│   ├── onboarding-container.spec.ts  # Container widget tests
+│   └── landing-animations.spec.ts    # Animation sequence tests
 ├── docs/
 │   ├── context/         # Project documentation
 │   └── PROJECT_OPTIMIZATION_REPORT.md # New optimization guide
@@ -212,7 +254,9 @@ Successfully improved the Get Started button to match exact Figma design specifi
 - **glass-button**: Interactive glass buttons with pulse effects
 - **glass-header/footer**: Navigation components
 - **glass-badge**: Small info badges
+- **glass-input**: Form inputs with glass styling
 - **specular-highlight**: Shimmer hover effects
+- **onboarding-widget**: Centered container with keyboard awareness
 
 ### Color Palette
 - **Primary Gradient**: Mint (#B8FFE3) to Purple (#C081FF)
@@ -227,6 +271,7 @@ Successfully improved the Get Started button to match exact Figma design specifi
 - **gradientShift**: Background rotation and scale
 - **duration-800**: Custom fade duration for button
 - **Staggered delays**: Progressive element appearance
+- **Coordinated transitions**: Multi-element fade sequences
 
 ## Performance Metrics
 
@@ -251,8 +296,8 @@ Successfully improved the Get Started button to match exact Figma design specifi
 ## Next Steps
 
 ### Immediate Priorities
-1. **Apply Optimizations**: Run `scripts/apply-optimizations.sh`
-2. Implement onboarding overlay on "Link Anything" page
+1. **Implement Onboarding Steps**: Build profile setup flow inside OnboardingContainer
+2. **Apply Optimizations**: Run `scripts/apply-optimizations.sh`
 3. Complete onboarding step 1 (basic profile setup)
 4. Complete onboarding step 2 (theme selection)
 5. Build dashboard link manager with drag-and-drop
@@ -271,7 +316,7 @@ Successfully improved the Get Started button to match exact Figma design specifi
 - Mobile app development
 
 ## Development Environment
-- **Local Server**: http://localhost:3003
+- **Local Server**: http://localhost:3000 (development)
 - **Node Version**: Compatible with Next.js 15
 - **Package Manager**: npm
 - **Database**: Supabase PostgreSQL
@@ -290,36 +335,37 @@ Successfully improved the Get Started button to match exact Figma design specifi
 
 ### Completed Today
 1. **Project Optimization Analysis** - Created comprehensive optimization report with 30-50% bundle reduction opportunities
-2. **Architectural Analysis** - Deep dive into system architecture, identified strengths and production readiness gaps
-3. **Landing Page Flow Analysis** - Educational breakdown of user journey, state management, and animation patterns
-4. **SuperClaude Integration** - Explored parallel usage of awesome-claude-agents with SuperClaude framework
-5. **Get Started Button Removal** - Cleaned all traces of previous onboarding implementation
-6. **Get Started Button Implementation** - Created new button with exact Figma specifications and improved animations
+2. **Get Started Button Removal** - Cleaned all traces of previous onboarding implementation
+3. **Get Started Button Implementation** - Created new button with exact Figma specifications (303px → 353px)
+4. **OnboardingContainer Creation** - Built mobile-optimized container widget with keyboard support
+5. **Animation Enhancements** - Added staggered fade-in and coordinated fade-out sequences
+6. **Production Deployment** - Successfully deployed all changes to Vercel
+7. **OnboardingContainer Update** - Transformed from full-screen to centered 303px × 467px widget
 
 ### Key Insights
 - **Architecture Score**: 8.2/10 - Solid foundation with clear improvement paths
 - **Critical Gaps**: Missing error boundaries, in-memory rate limiting, no caching layer
 - **Bundle Optimization**: Identified unused dependencies (zustand, styled-jsx, date-fns)
-- **Landing Page**: Sophisticated progressive disclosure pattern with excellent UX
-- **Button Design**: Successfully matched Figma specs with enhanced glass morphism
+- **Widget Design**: Successfully implemented centered widget with keyboard locking behavior
+- **Animation Polish**: Achieved premium feel with carefully timed transitions
 
 ### Files Created/Modified Today
-1. `/docs/PROJECT_OPTIMIZATION_REPORT.md` - Comprehensive optimization guide
-2. `/docs/ARCHITECTURAL_ANALYSIS_REPORT.md` - Full architecture assessment  
-3. `/docs/LANDING_PAGE_FLOW_ANALYSIS.md` - Educational analysis with mentor insights
-4. Optimization configs: `next.config.optimized.js`, `package.optimized.json`, `tsconfig.optimized.json`
-5. `/scripts/apply-optimizations.sh` - One-click optimization script
-6. `/app/page.tsx` - Updated with new Get Started button matching Figma specs
-7. `/tailwind.config.ts` - Added custom duration-800 for fade animation
-8. `/tests/get-started-button.spec.ts` - Updated tests for new button dimensions
+1. `/app/components/onboarding/OnboardingContainer.tsx` - Created widget with keyboard support, updated to centered design
+2. `/app/page.tsx` - Updated with new Get Started button (353px width) and animations
+3. `/app/globals.css` - Added onboarding styles and animation classes
+4. `/tailwind.config.ts` - Added custom duration-800 for fade animation
+5. `/tests/get-started-button.spec.ts` - Updated tests for new button dimensions
+6. `/tests/onboarding-container.spec.ts` - Created comprehensive test suite
+7. `/tests/landing-animations.spec.ts` - Added animation sequence tests
+8. Various test updates for centered widget behavior
 
 ### Next Actions
-1. Apply Phase 1 optimizations using the script
-2. Implement error boundaries across all route groups
-3. Add Redis for rate limiting and caching
-4. Continue with onboarding overlay implementation
+1. Build onboarding flow UI inside the OnboardingContainer widget
+2. Apply Phase 1 optimizations using the script
+3. Implement error boundaries across all route groups
+4. Add Redis for rate limiting and caching
 
 ---
 
-*Last Updated: July 27th, 2025 - Get Started Button Enhancement*
-*Project Status: Active Development - Sprint 1 + Figma Implementation*
+*Last Updated: July 27th, 2025 - OnboardingContainer Widget Update*
+*Project Status: Active Development - Sprint 1 + Onboarding Implementation*

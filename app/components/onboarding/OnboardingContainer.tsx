@@ -22,6 +22,7 @@ export default function OnboardingContainer({
 }: OnboardingContainerProps) {
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const [isFocused, setIsFocused] = useState(false)
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Visual Viewport API for iOS keyboard detection
@@ -30,6 +31,7 @@ export default function OnboardingContainer({
       if (window.visualViewport) {
         const newKeyboardHeight = window.innerHeight - window.visualViewport.height
         setKeyboardHeight(newKeyboardHeight)
+        setIsKeyboardVisible(newKeyboardHeight > 50) // Threshold to avoid false positives
         
         if (newKeyboardHeight > 0) {
           onKeyboardShow?.(newKeyboardHeight)
@@ -96,34 +98,36 @@ export default function OnboardingContainer({
     }
   }, [isVisible, isFocused, onClose])
 
+  // Calculate dynamic height when keyboard is visible
+  const containerHeight = isKeyboardVisible 
+    ? `min(467px, calc(100vh - ${keyboardHeight}px - 20px))` 
+    : '467px'
+
   return (
     <div
       ref={containerRef}
       className={cn(
-        'onboarding-container',
-        'fixed left-0 right-0 top-0 z-30',
-        'flex flex-col overflow-hidden',
+        'onboarding-widget',
+        'fixed z-30',
         'transition-all duration-300 ease-out',
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
+        isKeyboardVisible ? 'keyboard-visible' : '',
         debugMode && 'debug-border'
       )}
       style={{
-        bottom: `${keyboardHeight}px`,
+        width: '303px',
+        height: containerHeight,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        bottom: isKeyboardVisible ? `${keyboardHeight}px` : '50%',
+        marginBottom: isKeyboardVisible ? '0' : '-233.5px', // Half of 467px
         '--keyboard-height': `${keyboardHeight}px`
       } as React.CSSProperties}
     >
-      {/* Safe area spacer for iOS */}
-      <div className="flex-1 min-h-0">
+      {/* Scrollable content container */}
+      <div className="h-full overflow-y-auto">
         {children}
       </div>
-      
-      {/* Bottom safe area for iPhone home indicator */}
-      <div 
-        className="shrink-0"
-        style={{ 
-          height: keyboardHeight > 0 ? '0' : 'env(safe-area-inset-bottom)'
-        }}
-      />
     </div>
   )
 }
