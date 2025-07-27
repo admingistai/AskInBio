@@ -559,6 +559,38 @@
     }
   }
 
+  /* Onboarding Container */
+  .onboarding-container {
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Debug border for development */
+  .onboarding-container.debug-border {
+    border: 2px dashed rgba(255, 0, 0, 0.3);
+  }
+
+  /* Prevent iOS bounce and scroll */
+  .onboarding-container,
+  .onboarding-container * {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+    touch-action: pan-y;
+  }
+
+  /* Smooth keyboard transitions */
+  .onboarding-container {
+    transition-property: bottom, opacity;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Ensure proper stacking context */
+  .onboarding-container > * {
+    position: relative;
+    z-index: 1;
+  }
+
   /* Landing Page Animations */
   @keyframes float {
     0%, 100% {

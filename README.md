@@ -24,16 +24,13 @@ Link Anything™ (formerly AskInBio) is a modern link-in-bio platform that combi
 - 📱 **Mobile First** - Responsive design optimized for all devices
 - ⚡ **Lightning Fast** - Server-side rendering and edge optimization
 - 🎭 **Customizable Themes** - Multiple presets + custom styling options
-- 🚀 **45-Second Setup** - Quick onboarding with AI-powered assistance
+- 🚀 **Quick Setup** - Get started in minutes
 
 ## 🖼️ Screenshots
 
 <div align="center">
   <img src="docs/images/landing.png" alt="Landing Page" width="800" />
   <p><em>Minimalist landing page with gradient text and glass effects</em></p>
-  
-  <img src="docs/images/onboarding.png" alt="Onboarding Flow" width="800" />
-  <p><em>Smooth onboarding experience with morphing animations</em></p>
   
   <img src="docs/images/profile.png" alt="Public Profile" width="800" />
   <p><em>Beautiful public profiles with glass design</em></p>

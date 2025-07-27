@@ -1,12 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import OnboardingFlow from '@/components/OnboardingFlow'
+import { useRouter } from 'next/navigation'
+import OnboardingContainer from './components/onboarding/OnboardingContainer'
 
-export default function OnboardingPage() {
+export default function LandingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isLoaded, setIsLoaded] = useState(false)
-  const [isOnboardingActive, setIsOnboardingActive] = useState(false)
+  const [isButtonVisible, setIsButtonVisible] = useState(true)
+  const [isButtonFading, setIsButtonFading] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [isContentFading, setIsContentFading] = useState(false)
+  const [showButton, setShowButton] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -14,7 +20,16 @@ export default function OnboardingPage() {
     }
     window.addEventListener('mousemove', handleMouseMove)
     setIsLoaded(true)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+    
+    // Delay button appearance
+    const buttonTimer = setTimeout(() => {
+      setShowButton(true)
+    }, 1200)
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      clearTimeout(buttonTimer)
+    }
   }, [])
 
   return (
@@ -62,17 +77,17 @@ export default function OnboardingPage() {
 
       {/* Main Content - z-10 */}
       <div 
-        className={`relative z-10 flex px-6 pt-16 md:pt-20 lg:pt-24 transition-all duration-700 ${
-          isOnboardingActive ? 'opacity-0 translate-y-[-20px] pointer-events-none' : 'opacity-100 translate-y-0'
-        }`} 
-        style={{ minHeight: 'calc(100vh - 20px)' }}
+        className="relative z-10 flex px-6 pt-16 md:pt-20 lg:pt-24 transition-all duration-700 opacity-100 translate-y-0"
+        style={{ minHeight: '100vh' }}
       >
         <div className="max-w-4xl w-full mx-auto">
           {/* Content container */}
           <div className="max-w-2xl mx-auto px-4 md:px-8">
             {/* Main Title with floating animation - Centered */}
             <h1 
-              className={`font-extrabold tracking-tight mb-8 text-center transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              className={`font-extrabold tracking-tight mb-8 text-center transition-all duration-1000 ${
+                isContentFading ? 'opacity-0 translate-y-4' : isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
               style={{
                 fontSize: 'clamp(58px, 11vw, 96px)', // Increased from clamp(52px, 10vw, 88px)
                 lineHeight: '1.1',
@@ -100,7 +115,9 @@ export default function OnboardingPage() {
             
             {/* Description with fade in - left aligned */}
             <div className="mb-12">
-              <p className={`text-lg md:text-xl lg:text-2xl text-white/60 text-left transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+              <p className={`text-lg md:text-xl lg:text-2xl text-white/60 text-left transition-all duration-1000 delay-300 ${
+                isContentFading ? 'opacity-0 translate-y-4' : isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}>
                 Add Link Anything™, the AI companion that drives engagement, grows traffic, and unlocks new revenue-- free, customizable to your brand, your look, your content. Create and install in 45 seconds.
               </p>
             </div>
@@ -109,11 +126,122 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Get Started Button / Onboarding Flow */}
-      <OnboardingFlow onActiveChange={setIsOnboardingActive} />
+      {/* Get Started Button - z-20 */}
+      {isButtonVisible && (
+        <button
+          onClick={() => {
+            // First fade out content
+            setIsContentFading(true)
+            
+            // Then fade out button after a short delay
+            setTimeout(() => {
+              setIsButtonFading(true)
+            }, 300)
+            
+            // Finally show onboarding after everything fades
+            setTimeout(() => {
+              setIsButtonVisible(false)
+              setShowOnboarding(true)
+            }, 1100)
+          }}
+          className={`
+            fixed bottom-[10vh] left-1/2 -translate-x-1/2 z-20
+            flex items-center justify-center gap-[10.178px]
+            text-white font-medium text-base
+            transition-all ease-out
+            hover:scale-[1.02] active:scale-[0.98]
+            group
+            ${isButtonFading ? 'opacity-0 scale-95 duration-800' : showButton ? 'opacity-100 scale-100 duration-800' : 'opacity-0 scale-95'}
+          `}
+          style={{
+            // Figma exact specifications
+            width: '353px',
+            maxWidth: '90vw', // Responsive on mobile
+            height: '51px',
+            padding: '7.634px 10px',
+            borderRadius: '23px',
+            background: 'rgba(255, 255, 255, 0.06)',
+            boxShadow: '0 1.272px 15.267px 0 rgba(0, 0, 0, 0.05)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            animation: !isButtonFading ? 'pulse 4s ease-in-out infinite' : 'none',
+          }}
+          onMouseEnter={(e) => {
+            if (!isButtonFading) {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+              e.currentTarget.style.boxShadow = '0 2px 20px 0 rgba(255, 255, 255, 0.1), 0 1.272px 15.267px 0 rgba(0, 0, 0, 0.05)'
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isButtonFading) {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'
+              e.currentTarget.style.boxShadow = '0 1.272px 15.267px 0 rgba(0, 0, 0, 0.05)'
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
+          Get Started
+        </button>
+      )}
 
-      {/* Future overlay will be z-20 */}
-      {/* <div className="absolute inset-0 z-20">Onboarding overlay here</div> */}
+      {/* Onboarding Container */}
+      <OnboardingContainer
+        isVisible={showOnboarding}
+        debugMode={true} // Enable debug border for development
+        onClose={() => {
+          setShowOnboarding(false)
+          setIsContentFading(false)
+          setIsButtonVisible(true)
+          setIsButtonFading(false)
+        }}
+        onKeyboardShow={(height) => {
+          console.log('Keyboard shown, height:', height)
+        }}
+        onKeyboardHide={() => {
+          console.log('Keyboard hidden')
+        }}
+      >
+        {/* Placeholder content for testing */}
+        <div className="flex flex-col items-center justify-center h-full p-6">
+          <div className={`glass-card p-8 max-w-md w-full transition-all duration-700 transform ${
+            showOnboarding ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'
+          }`}>
+            <h2 className={`text-2xl font-bold text-white mb-4 transition-all duration-700 delay-200 ${
+              showOnboarding ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`} style={{
+              textShadow: showOnboarding ? '0 0 20px rgba(255, 255, 255, 0.3)' : 'none'
+            }}>Welcome to Onboarding</h2>
+            <p className={`text-white/60 mb-6 transition-all duration-700 delay-300 ${
+              showOnboarding ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>This container will hold all onboarding UI elements.</p>
+            
+            {/* Test input for keyboard detection */}
+            <input
+              type="text"
+              placeholder="Test keyboard detection..."
+              className={`glass-input w-full mb-4 text-white transition-all duration-700 delay-400 ${
+                showOnboarding ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+            />
+            
+            <button
+              onClick={() => {
+                setShowOnboarding(false)
+                setIsContentFading(false)
+                setIsButtonVisible(true)
+                setIsButtonFading(false)
+              }}
+              className={`glass-button w-full transition-all duration-700 delay-500 ${
+                showOnboarding ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
+              }`}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </OnboardingContainer>
     </div>
   )
 }

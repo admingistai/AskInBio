@@ -57,6 +57,9 @@ const config: Config = {
       backdropSaturate: {
         '180': '180%',
       },
+      transitionDuration: {
+        '800': '800ms',
+      },
       animation: {
         'specular-sweep': 'specular-sweep 2s ease-in-out infinite',
         'glass-shimmer': 'glass-shimmer 3s ease-in-out infinite',

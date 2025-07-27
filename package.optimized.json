@@ -1,0 +1,87 @@
+{
+  "name": "ask-in-bio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "prisma generate && next build",
+    "build:analyze": "ANALYZE=true next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:db": "playwright test --project=database",
+    "test:db-integration": "playwright test --project=database-integration",
+    "test:db-all": "playwright test --project=database --project=database-integration",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e-all": "playwright test --project=chromium --project=firefox --project=webkit",
+    "db:push": "prisma db push --skip-generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:generate": "prisma generate",
+    "db:pull": "prisma db pull --force",
+    "clean": "rm -rf .next node_modules package-lock.json && npm install",
+    "clean:cache": "rm -rf .next .tsbuildinfo",
+    "check:deps": "depcheck",
+    "check:size": "size-limit"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@hookform/resolvers": "^5.2.0",
+    "@prisma/client": "^6.12.0",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.52.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
+    "dotenv": "^17.2.1",
+    "framer-motion": "^12.23.9",
+    "lucide-react": "^0.526.0",
+    "next": "^15.4.4",
+    "pg": "^8.16.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.61.1",
+    "sonner": "^2.0.6",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.0.10"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@next/bundle-analyzer": "^15.4.4",
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "autoprefixer": "^10.4.21",
+    "depcheck": "^1.4.7",
+    "eslint": "^9.32.0",
+    "eslint-config-next": "^15.4.4",
+    "postcss": "^8.5.6",
+    "prisma": "^6.12.0",
+    "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
+  "size-limit": [
+    {
+      "path": ".next/static/css/*.css",
+      "limit": "50 KB"
+    },
+    {
+      "path": ".next/static/chunks/main*.js",
+      "limit": "150 KB"
+    }
+  ]
+}
