@@ -609,7 +609,7 @@
 
   /* Smooth keyboard transitions */
   .onboarding-widget {
-    transition-property: bottom, margin-bottom, opacity, height;
+    transition-property: top, opacity, height, transform;
     transition-duration: 300ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }

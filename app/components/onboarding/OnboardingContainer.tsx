@@ -44,6 +44,7 @@ export default function OnboardingContainer({
           visualViewportHeight: vpHeight,
           visualViewportOffsetTop: vpOffsetTop,
           keyboardHeight: newKeyboardHeight,
+          calculatedTopPosition: vpHeight - 467, // Default widget height for calculation
           isKeyboardVisible: newKeyboardHeight > 30
         })
         
@@ -158,11 +159,12 @@ export default function OnboardingContainer({
         height: `${widgetHeight}px`,
         left: '50%',
         ...(isKeyboardVisible ? {
-          // When keyboard is visible, position widget directly above keyboard
+          // When keyboard is visible, position from top to lock bottom to keyboard
+          // iOS Safari requires top positioning, not bottom positioning
           transform: 'translateX(-50%)',
           position: 'fixed',
-          bottom: `${keyboardHeight}px`,
-          top: 'auto'
+          top: `${viewportHeight - widgetHeight}px`,
+          bottom: 'auto'
         } : {
           // When keyboard is hidden, center the widget
           transform: 'translate(-50%, -50%)',
@@ -177,7 +179,7 @@ export default function OnboardingContainer({
       {debugMode && (
         <div className="absolute top-0 left-0 right-0 bg-black/50 text-white text-xs p-2 z-50">
           <div>KB: {debugInfo.kb}px | VP: {debugInfo.vp}px | Win: {debugInfo.wh}px</div>
-          <div>Visible: {debugInfo.visible ? 'YES' : 'NO'}</div>
+          <div>Top: {isKeyboardVisible ? viewportHeight - widgetHeight : 'centered'}px | Visible: {debugInfo.visible ? 'YES' : 'NO'}</div>
         </div>
       )}
       
