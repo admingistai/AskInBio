@@ -125,7 +125,7 @@ export async function signIn(formData: LoginFormData) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { 
-        error: error.errors[0].message,
+        error: error.issues[0].message,
         code: 'VALIDATION_ERROR'
       }
     }
