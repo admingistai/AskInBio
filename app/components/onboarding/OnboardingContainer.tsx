@@ -24,15 +24,17 @@ export default function OnboardingContainer({
   const [isFocused, setIsFocused] = useState(false)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
   const [widgetHeight, setWidgetHeight] = useState(467) // Default height
+  const [viewportHeight, setViewportHeight] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Visual Viewport API for iOS keyboard detection
   useEffect(() => {
     const handleViewportChange = () => {
-      if (window.visualViewport) {
+      if (typeof window !== 'undefined' && window.visualViewport) {
         const newKeyboardHeight = window.innerHeight - window.visualViewport.height
         setKeyboardHeight(newKeyboardHeight)
         setIsKeyboardVisible(newKeyboardHeight > 50) // Threshold to avoid false positives
+        setViewportHeight(window.visualViewport.height || window.innerHeight)
         
         if (newKeyboardHeight > 0) {
           // Keyboard is visible
@@ -55,17 +57,26 @@ export default function OnboardingContainer({
     // Initial check
     handleViewportChange()
 
+    // Set initial viewport height on mount
+    if (typeof window !== 'undefined') {
+      setViewportHeight(window.innerHeight)
+    }
+
     // Add listeners
-    window.visualViewport?.addEventListener('resize', handleViewportChange)
-    window.visualViewport?.addEventListener('scroll', handleViewportChange)
-    
-    // Fallback for older browsers
-    window.addEventListener('resize', handleViewportChange)
+    if (typeof window !== 'undefined') {
+      window.visualViewport?.addEventListener('resize', handleViewportChange)
+      window.visualViewport?.addEventListener('scroll', handleViewportChange)
+      
+      // Fallback for older browsers
+      window.addEventListener('resize', handleViewportChange)
+    }
     
     return () => {
-      window.visualViewport?.removeEventListener('resize', handleViewportChange)
-      window.visualViewport?.removeEventListener('scroll', handleViewportChange)
-      window.removeEventListener('resize', handleViewportChange)
+      if (typeof window !== 'undefined') {
+        window.visualViewport?.removeEventListener('resize', handleViewportChange)
+        window.visualViewport?.removeEventListener('scroll', handleViewportChange)
+        window.removeEventListener('resize', handleViewportChange)
+      }
     }
   }, [onKeyboardShow, onKeyboardHide])
 
@@ -133,7 +144,7 @@ export default function OnboardingContainer({
         marginBottom: isKeyboardVisible ? '0' : `-${widgetHeight / 2}px`,
         '--keyboard-height': `${keyboardHeight}px`,
         '--widget-height': `${widgetHeight}px`,
-        '--visual-viewport-height': `${window.visualViewport?.height || window.innerHeight}px`
+        '--visual-viewport-height': `${viewportHeight}px`
       } as React.CSSProperties}
     >
       {/* Scrollable content container */}
