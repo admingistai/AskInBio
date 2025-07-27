@@ -26,7 +26,8 @@ export default function OnboardingContainer({
   const [widgetHeight, setWidgetHeight] = useState(467) // Default height
   const [viewportHeight, setViewportHeight] = useState(0)
   const [windowHeight, setWindowHeight] = useState(0)
-  const [debugInfo, setDebugInfo] = useState({ kb: 0, vp: 0, wh: 0, visible: false })
+  const [vpOffsetTop, setVpOffsetTop] = useState(0) // Track visual viewport scroll offset
+  const [debugInfo, setDebugInfo] = useState({ kb: 0, vp: 0, wh: 0, offset: 0, visible: false })
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Visual Viewport API for iOS keyboard detection
@@ -44,15 +45,16 @@ export default function OnboardingContainer({
           visualViewportHeight: vpHeight,
           visualViewportOffsetTop: vpOffsetTop,
           keyboardHeight: newKeyboardHeight,
-          calculatedTopPosition: vpHeight - 467, // Default widget height for calculation
+          calculatedTopPosition: vpOffsetTop + vpHeight - 467, // Include offset in calculation
           isKeyboardVisible: newKeyboardHeight > 30
         })
         
         setKeyboardHeight(newKeyboardHeight)
         setWindowHeight(winHeight)
         setViewportHeight(vpHeight)
+        setVpOffsetTop(vpOffsetTop) // Track the offset
         setIsKeyboardVisible(newKeyboardHeight > 30) // iOS keyboard is typically > 200px
-        setDebugInfo({ kb: newKeyboardHeight, vp: vpHeight, wh: winHeight, visible: newKeyboardHeight > 30 })
+        setDebugInfo({ kb: newKeyboardHeight, vp: vpHeight, wh: winHeight, offset: vpOffsetTop, visible: newKeyboardHeight > 30 })
         
         if (newKeyboardHeight > 30) {
           // Keyboard is visible
@@ -79,6 +81,7 @@ export default function OnboardingContainer({
     if (typeof window !== 'undefined') {
       setViewportHeight(window.visualViewport?.height || window.innerHeight)
       setWindowHeight(window.innerHeight)
+      setVpOffsetTop(window.visualViewport?.offsetTop || 0)
     }
 
     // Add listeners
@@ -160,10 +163,10 @@ export default function OnboardingContainer({
         left: '50%',
         ...(isKeyboardVisible ? {
           // When keyboard is visible, position from top to lock bottom to keyboard
-          // iOS Safari requires top positioning, not bottom positioning
+          // iOS Safari requires top positioning with offsetTop to handle scrolling
           transform: 'translateX(-50%)',
           position: 'fixed',
-          top: `${viewportHeight - widgetHeight}px`,
+          top: `${vpOffsetTop + viewportHeight - widgetHeight}px`, // Include offset for scroll handling
           bottom: 'auto'
         } : {
           // When keyboard is hidden, center the widget
@@ -179,7 +182,8 @@ export default function OnboardingContainer({
       {debugMode && (
         <div className="absolute top-0 left-0 right-0 bg-black/50 text-white text-xs p-2 z-50">
           <div>KB: {debugInfo.kb}px | VP: {debugInfo.vp}px | Win: {debugInfo.wh}px</div>
-          <div>Top: {isKeyboardVisible ? viewportHeight - widgetHeight : 'centered'}px | Visible: {debugInfo.visible ? 'YES' : 'NO'}</div>
+          <div>Offset: {debugInfo.offset}px | Top: {isKeyboardVisible ? vpOffsetTop + viewportHeight - widgetHeight : 'centered'}px</div>
+          <div>Visible: {debugInfo.visible ? 'YES' : 'NO'} | Widget Height: {widgetHeight}px</div>
         </div>
       )}
       
