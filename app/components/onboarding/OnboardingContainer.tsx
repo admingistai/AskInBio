@@ -170,10 +170,6 @@ export default function OnboardingContainer({
           top: '50%',
           bottom: 'auto'
         }),
-        '--keyboard-height': `${keyboardHeight}px`,
-        '--widget-height': `${widgetHeight}px`,
-        '--visual-viewport-height': `${viewportHeight}px`,
-        '--window-height': `${windowHeight}px`,
         willChange: 'transform'
       } as React.CSSProperties}
     >
