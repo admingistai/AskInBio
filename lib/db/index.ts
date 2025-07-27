@@ -307,11 +307,8 @@ export async function getPublicProfile(username: string) {
     return null
   }
 
-  // Remove sensitive data
-  const { createdAt, updatedAt, ...publicUser } = user
-
   return {
-    user: publicUser,
+    user,
     theme: user.themes[0] || null,
   }
 }
