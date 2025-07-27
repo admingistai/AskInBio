@@ -150,10 +150,12 @@ export async function resetDatabase() {
   await testPrisma.clickEvent.deleteMany()
   await testPrisma.link.deleteMany()
   await testPrisma.theme.deleteMany()
+  // Delete all test users (we can't filter UUIDs by prefix)
+  // Instead, we'll delete users with test usernames
   await testPrisma.user.deleteMany({
     where: {
-      id: {
-        startsWith: TEST_PREFIX,
+      username: {
+        startsWith: 'test_',
       },
     },
   })
