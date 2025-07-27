@@ -624,6 +624,23 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Keyboard visible state - lock scrolling */
+  .onboarding-widget.keyboard-visible {
+    /* Prevent any scrolling or bouncing */
+    position: fixed !important;
+    overflow: hidden !important;
+  }
+  
+  /* iOS-specific scroll prevention */
+  body.keyboard-lock {
+    position: fixed !important;
+    overflow: hidden !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    touch-action: none !important;
+    -webkit-overflow-scrolling: auto !important;
+  }
+
   /* Focus styles for inputs inside container */
   .onboarding-widget input:focus,
   .onboarding-widget textarea:focus {

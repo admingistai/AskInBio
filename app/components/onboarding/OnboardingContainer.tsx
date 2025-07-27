@@ -29,6 +29,71 @@ export default function OnboardingContainer({
   const [vpOffsetTop, setVpOffsetTop] = useState(0) // Track visual viewport scroll offset
   const [debugInfo, setDebugInfo] = useState({ kb: 0, vp: 0, wh: 0, offset: 0, visible: false })
   const containerRef = useRef<HTMLDivElement>(null)
+  const originalMetaViewportRef = useRef<string | null>(null)
+
+  // Prevent body scrolling when keyboard is visible
+  useEffect(() => {
+    if (isKeyboardVisible && isVisible) {
+      // Add keyboard-lock class to body
+      document.body.classList.add('keyboard-lock');
+      
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      
+      // Update meta viewport to prevent zooming and scrolling
+      const metaViewport = document.querySelector('meta[name="viewport"]');
+      if (metaViewport) {
+        originalMetaViewportRef.current = metaViewport.getAttribute('content');
+        metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+      }
+      
+      // Prevent touchmove on document
+      const preventScroll = (e: TouchEvent) => {
+        // Allow scrolling within the widget content
+        if (!containerRef.current?.contains(e.target as Node)) {
+          e.preventDefault();
+        }
+      };
+      
+      // Prevent wheel events
+      const preventWheel = (e: WheelEvent) => {
+        if (!containerRef.current?.contains(e.target as Node)) {
+          e.preventDefault();
+        }
+      };
+      
+      // Prevent gesture events on iOS
+      const preventGesture = (e: Event) => {
+        e.preventDefault();
+      };
+      
+      document.addEventListener('touchmove', preventScroll, { passive: false });
+      document.addEventListener('wheel', preventWheel, { passive: false });
+      document.addEventListener('gesturestart', preventGesture);
+      document.addEventListener('gesturechange', preventGesture);
+      document.addEventListener('gestureend', preventGesture);
+      
+      return () => {
+        // Remove keyboard-lock class
+        document.body.classList.remove('keyboard-lock');
+        
+        // Restore original meta viewport
+        const metaViewport = document.querySelector('meta[name="viewport"]');
+        if (originalMetaViewportRef.current && metaViewport) {
+          metaViewport.setAttribute('content', originalMetaViewportRef.current);
+        }
+        
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
+        
+        document.removeEventListener('touchmove', preventScroll);
+        document.removeEventListener('wheel', preventWheel);
+        document.removeEventListener('gesturestart', preventGesture);
+        document.removeEventListener('gesturechange', preventGesture);
+        document.removeEventListener('gestureend', preventGesture);
+      };
+    }
+  }, [isKeyboardVisible, isVisible]);
 
   // Visual Viewport API for iOS keyboard detection
   useEffect(() => {
@@ -163,10 +228,10 @@ export default function OnboardingContainer({
         left: '50%',
         ...(isKeyboardVisible ? {
           // When keyboard is visible, position from top to lock bottom to keyboard
-          // iOS Safari requires top positioning with offsetTop to handle scrolling
+          // Viewport is locked, so we don't need offset anymore
           transform: 'translateX(-50%)',
           position: 'fixed',
-          top: `${vpOffsetTop + viewportHeight - widgetHeight}px`, // Include offset for scroll handling
+          top: `${viewportHeight - widgetHeight}px`, // Simple calculation without offset
           bottom: 'auto'
         } : {
           // When keyboard is hidden, center the widget
@@ -182,13 +247,20 @@ export default function OnboardingContainer({
       {debugMode && (
         <div className="absolute top-0 left-0 right-0 bg-black/50 text-white text-xs p-2 z-50">
           <div>KB: {debugInfo.kb}px | VP: {debugInfo.vp}px | Win: {debugInfo.wh}px</div>
-          <div>Offset: {debugInfo.offset}px | Top: {isKeyboardVisible ? vpOffsetTop + viewportHeight - widgetHeight : 'centered'}px</div>
+          <div>Offset: {debugInfo.offset}px | Top: {isKeyboardVisible ? viewportHeight - widgetHeight : 'centered'}px</div>
+          <div>Scroll Lock: {isKeyboardVisible ? 'ACTIVE' : 'INACTIVE'}</div>
           <div>Visible: {debugInfo.visible ? 'YES' : 'NO'} | Widget Height: {widgetHeight}px</div>
         </div>
       )}
       
-      {/* Scrollable content container */}
-      <div className="onboarding-content">
+      {/* Content container - prevent scrolling when keyboard visible */}
+      <div 
+        className="onboarding-content"
+        style={{
+          overflow: isKeyboardVisible ? 'hidden' : 'auto',
+          touchAction: isKeyboardVisible ? 'none' : 'auto'
+        }}
+      >
         {children}
       </div>
     </div>
