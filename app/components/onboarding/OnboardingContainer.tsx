@@ -23,6 +23,7 @@ export default function OnboardingContainer({
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const [isFocused, setIsFocused] = useState(false)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+  const [widgetHeight, setWidgetHeight] = useState(467) // Default height
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Visual Viewport API for iOS keyboard detection
@@ -34,8 +35,18 @@ export default function OnboardingContainer({
         setIsKeyboardVisible(newKeyboardHeight > 50) // Threshold to avoid false positives
         
         if (newKeyboardHeight > 0) {
+          // Keyboard is visible
+          // Calculate available space (visual viewport height minus safe margins)
+          const availableHeight = window.visualViewport.height - 40 // 40px for margins
+          
+          // Set widget height to fit within available space
+          const newHeight = Math.min(467, availableHeight)
+          setWidgetHeight(newHeight)
+          
           onKeyboardShow?.(newKeyboardHeight)
         } else {
+          // Keyboard is hidden
+          setWidgetHeight(467) // Reset to default
           onKeyboardHide?.()
         }
       }
@@ -48,9 +59,13 @@ export default function OnboardingContainer({
     window.visualViewport?.addEventListener('resize', handleViewportChange)
     window.visualViewport?.addEventListener('scroll', handleViewportChange)
     
+    // Fallback for older browsers
+    window.addEventListener('resize', handleViewportChange)
+    
     return () => {
       window.visualViewport?.removeEventListener('resize', handleViewportChange)
       window.visualViewport?.removeEventListener('scroll', handleViewportChange)
+      window.removeEventListener('resize', handleViewportChange)
     }
   }, [onKeyboardShow, onKeyboardHide])
 
@@ -98,11 +113,6 @@ export default function OnboardingContainer({
     }
   }, [isVisible, isFocused, onClose])
 
-  // Calculate dynamic height when keyboard is visible
-  const containerHeight = isKeyboardVisible 
-    ? `min(467px, calc(100vh - ${keyboardHeight}px - 20px))` 
-    : '467px'
-
   return (
     <div
       ref={containerRef}
@@ -116,16 +126,18 @@ export default function OnboardingContainer({
       )}
       style={{
         width: '303px',
-        height: containerHeight,
+        height: `${widgetHeight}px`,
         left: '50%',
         transform: 'translateX(-50%)',
-        bottom: isKeyboardVisible ? `${keyboardHeight}px` : '50%',
-        marginBottom: isKeyboardVisible ? '0' : '-233.5px', // Half of 467px
-        '--keyboard-height': `${keyboardHeight}px`
+        bottom: isKeyboardVisible ? `${keyboardHeight + 20}px` : '50%',
+        marginBottom: isKeyboardVisible ? '0' : `-${widgetHeight / 2}px`,
+        '--keyboard-height': `${keyboardHeight}px`,
+        '--widget-height': `${widgetHeight}px`,
+        '--visual-viewport-height': `${window.visualViewport?.height || window.innerHeight}px`
       } as React.CSSProperties}
     >
       {/* Scrollable content container */}
-      <div className="h-full overflow-y-auto">
+      <div className="onboarding-content">
         {children}
       </div>
     </div>

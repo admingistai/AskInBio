@@ -561,8 +561,24 @@
 
   /* Onboarding Widget */
   .onboarding-widget {
-    background: transparent;
+    /* Glass morphism background */
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 24px;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.15),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    
+    /* Prevent tap highlight */
     -webkit-tap-highlight-color: transparent;
+    
+    /* Prevent overflow */
+    overflow: hidden;
+    
+    /* Prevent iOS bounce */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   /* Debug border for development */
@@ -570,30 +586,66 @@
     border: 2px solid rgba(255, 0, 0, 0.5);
   }
 
-  /* Prevent iOS bounce and scroll */
-  .onboarding-widget,
-  .onboarding-widget * {
+  /* Content wrapper for scrolling */
+  .onboarding-content {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+    box-sizing: border-box;
+    
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: none;
-    touch-action: pan-y;
+    
+    /* Hide scrollbar on mobile */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .onboarding-content::-webkit-scrollbar {
+    display: none;
   }
 
   /* Smooth keyboard transitions */
   .onboarding-widget {
-    transition-property: bottom, margin-bottom, opacity;
+    transition-property: bottom, margin-bottom, opacity, height;
     transition-duration: 300ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Ensure proper stacking context */
-  .onboarding-widget > * {
-    position: relative;
-    z-index: 1;
+  /* Safe area padding for iOS */
+  .onboarding-widget {
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
-  /* Keyboard-visible state */
-  .onboarding-widget.keyboard-visible {
-    margin-bottom: 0 !important;
+  /* Prevent content jump when keyboard appears */
+  .onboarding-widget * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Focus styles for inputs inside container */
+  .onboarding-widget input:focus,
+  .onboarding-widget textarea:focus {
+    outline: none;
+    border-color: rgba(184, 255, 227, 0.5);
+    box-shadow: 0 0 0 2px rgba(184, 255, 227, 0.2);
+  }
+
+  /* Responsive adjustments */
+  @media (max-height: 500px) {
+    .onboarding-widget {
+      /* On very small screens, take more width */
+      width: min(350px, calc(100vw - 20px)) !important;
+    }
+  }
+
+  /* Landscape mode adjustments */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .onboarding-widget {
+      /* Reduce default height in landscape */
+      --widget-height: min(400px, calc(100vh - 40px)) !important;
+    }
   }
 
   /* Landing Page Animations */
