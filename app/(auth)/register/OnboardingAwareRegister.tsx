@@ -83,7 +83,7 @@ export default function OnboardingAwareRegister() {
             
             {/* Success Message */}
             <h1 className="text-3xl font-bold text-white leading-tight">
-              You're almost there!
+              You&apos;re almost there!
             </h1>
             
             {/* Value Proposition */}

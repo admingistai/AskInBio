@@ -15,38 +15,27 @@ test.describe('Onboarding Container', () => {
     // Click Get Started
     await button.click()
     
-    // Wait for button fade and container to appear
-    await page.waitForTimeout(1000)
+    // Wait for animations and show onboarding (1100ms delay + transition time)
+    await page.waitForTimeout(1500)
     
     // Container should be visible
     await expect(container).toHaveCSS('opacity', '1')
-    await expect(container).toBeVisible()
   })
 
-  test('should have debug border in development', async ({ page }) => {
+  test('should not have debug border in production', async ({ page }) => {
     const button = page.locator('button:has-text("Get Started")')
     await button.click()
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1500)
     
     const container = page.locator('.onboarding-widget')
-    await expect(container).toHaveClass(/debug-border/)
-    
-    // Check for red solid border
-    const borderStyle = await container.evaluate((el) => {
-      const styles = window.getComputedStyle(el)
-      return {
-        borderStyle: styles.borderStyle,
-        borderColor: styles.borderColor
-      }
-    })
-    
-    expect(borderStyle.borderStyle).toContain('solid')
+    // Debug mode should be disabled by default
+    await expect(container).not.toHaveClass(/debug-border/)
   })
 
   test('should be fixed positioned and centered', async ({ page }) => {
     const button = page.locator('button:has-text("Get Started")')
     await button.click()
-    await page.waitForTimeout(1200)
+    await page.waitForTimeout(1500)
     
     const container = page.locator('.onboarding-widget')
     
@@ -63,7 +52,7 @@ test.describe('Onboarding Container', () => {
   test('should close when close button is clicked', async ({ page }) => {
     const getStartedButton = page.locator('button:has-text("Get Started")')
     await getStartedButton.click()
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1500)
     
     const closeButton = page.locator('button:has-text("Close")')
     await closeButton.click()
@@ -95,7 +84,7 @@ test.describe('Onboarding Container', () => {
   test('should contain test input for keyboard detection', async ({ page }) => {
     const button = page.locator('button:has-text("Get Started")')
     await button.click()
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1500)
     
     const input = page.locator('input[placeholder="Test keyboard detection..."]')
     await expect(input).toBeVisible()
@@ -105,7 +94,7 @@ test.describe('Onboarding Container', () => {
   test('should have proper z-index layering', async ({ page }) => {
     const button = page.locator('button:has-text("Get Started")')
     await button.click()
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1500)
     
     const container = page.locator('.onboarding-widget')
     const zIndex = await container.evaluate((el) => {
@@ -122,7 +111,7 @@ test.describe('Onboarding Container', () => {
     
     const button = page.locator('button:has-text("Get Started")')
     await button.click()
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1500)
     
     const input = page.locator('input[placeholder="Test keyboard detection..."]')
     

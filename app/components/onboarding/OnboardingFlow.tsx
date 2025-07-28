@@ -162,7 +162,7 @@ export default function OnboardingFlow({ isVisible, onComplete }: OnboardingFlow
           <div className="space-y-8">
             <div className="text-center mb-8 px-4">
               <h2 className="text-[28px] font-normal text-white leading-[1.3]">
-                Let's set up your profile
+                Let&apos;s set up your profile
               </h2>
               <p className="text-[#999999] mt-3 text-[16px]">
                 Choose a username for your Ask in Bio page
@@ -208,7 +208,7 @@ export default function OnboardingFlow({ isVisible, onComplete }: OnboardingFlow
             
             <div className="px-4">
               <h2 className="text-[28px] font-normal text-white mb-3 leading-[1.3]">
-                You're all set!
+                You&apos;re all set!
               </h2>
               <p className="text-[#999999] text-[16px]">
                 Your Ask in Bio page is ready to help you {data.goal.toLowerCase()}

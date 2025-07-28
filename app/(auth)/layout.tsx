@@ -40,9 +40,9 @@ export default function AuthLayout({
   }, [])
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-black">
-      {/* Dynamic Gradient Background */}
-      <div className="absolute inset-0 z-0">
+    <div className="min-h-screen bg-black relative overflow-auto">
+      {/* Dynamic Gradient Background - Fixed */}
+      <div className="fixed inset-0 z-0">
         {/* Animated gradient background */}
         <div 
           className="absolute inset-0 opacity-70"
@@ -58,8 +58,8 @@ export default function AuthLayout({
         <div className="absolute inset-0 bg-gradient-to-b from-black/90 to-black/95" />
       </div>
       
-      {/* Floating Glass Orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {/* Floating Glass Orbs - Fixed */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div 
           className="absolute w-96 h-96 rounded-full"
           style={{
@@ -84,8 +84,8 @@ export default function AuthLayout({
         />
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6">
+      {/* Main Content - Scrollable */}
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-md space-y-8">
           {/* Logo with Apple Design Language */}
           <div 
