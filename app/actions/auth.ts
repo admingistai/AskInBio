@@ -257,13 +257,13 @@ export async function signInWithGoogle() {
   if (!origin) {
     const host = headersList.get('host')
     const protocol = headersList.get('x-forwarded-proto') || 'https'
-    origin = host ? `${protocol}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL || null)
+    origin = host ? `${protocol}://${host}` : (process.env.NEXT_PUBLIC_APP_URL || null)
   }
   
   // Ensure we never use localhost in production
   if (origin && process.env.NODE_ENV === 'production' && origin.includes('localhost')) {
     console.error('Invalid origin detected in production:', origin)
-    origin = process.env.NEXT_PUBLIC_SITE_URL || null
+    origin = process.env.NEXT_PUBLIC_APP_URL || null
   }
   
   if (!origin) {
