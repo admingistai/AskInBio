@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import OnboardingContainer from './components/onboarding/OnboardingContainer'
+import OnboardingFlow from './components/onboarding/OnboardingFlow'
 
 export default function LandingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -189,7 +190,7 @@ export default function LandingPage() {
       {/* Onboarding Container */}
       <OnboardingContainer
         isVisible={showOnboarding}
-        debugMode={true} // Enable debug border for development
+        debugMode={false}
         onClose={() => {
           setShowOnboarding(false)
           setIsContentFading(false)
@@ -203,44 +204,17 @@ export default function LandingPage() {
           console.log('Keyboard hidden')
         }}
       >
-        {/* Placeholder content for testing */}
-        <div className="flex flex-col items-center justify-center h-full p-6">
-          <div className={`glass-card p-8 max-w-md w-full transition-all duration-700 transform ${
-            showOnboarding ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'
-          }`}>
-            <h2 className={`text-2xl font-bold text-white mb-4 transition-all duration-700 delay-200 ${
-              showOnboarding ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`} style={{
-              textShadow: showOnboarding ? '0 0 20px rgba(255, 255, 255, 0.3)' : 'none'
-            }}>Welcome to Onboarding</h2>
-            <p className={`text-white/60 mb-6 transition-all duration-700 delay-300 ${
-              showOnboarding ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}>This container will hold all onboarding UI elements.</p>
+        <OnboardingFlow 
+          isVisible={showOnboarding}
+          onComplete={(data) => {
+            console.log('Onboarding completed:', data)
+            // Store onboarding data in sessionStorage for the signup process
+            sessionStorage.setItem('onboardingData', JSON.stringify(data))
             
-            {/* Test input for keyboard detection */}
-            <input
-              type="text"
-              placeholder="Test keyboard detection..."
-              className={`glass-input w-full mb-4 text-white transition-all duration-700 delay-400 ${
-                showOnboarding ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-            />
-            
-            <button
-              onClick={() => {
-                setShowOnboarding(false)
-                setIsContentFading(false)
-                setIsButtonVisible(true)
-                setIsButtonFading(false)
-              }}
-              className={`glass-button w-full transition-all duration-700 delay-500 ${
-                showOnboarding ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
-              }`}
-            >
-              Close
-            </button>
-          </div>
-        </div>
+            // Navigate to register page to complete account creation
+            router.push('/register')
+          }}
+        />
       </OnboardingContainer>
     </div>
   )

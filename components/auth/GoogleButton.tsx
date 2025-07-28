@@ -44,11 +44,33 @@ export function GoogleButton() {
   }
 
   return (
-    <Button
-      variant="outline"
-      className="w-full"
+    <button
       onClick={handleGoogleSignIn}
       disabled={isLoading}
+      className="w-full h-12 rounded-full font-medium text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+      style={{
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: `
+          0 4px 16px rgba(0, 0, 0, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2)
+        `,
+        willChange: 'transform, backdrop-filter'
+      }}
+      onMouseEnter={(e) => {
+        if (!isLoading) {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isLoading) {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+        }
+      }}
     >
       {isLoading ? (
         <>
@@ -75,6 +97,6 @@ export function GoogleButton() {
           Continue with Google
         </>
       )}
-    </Button>
+    </button>
   )
 }
