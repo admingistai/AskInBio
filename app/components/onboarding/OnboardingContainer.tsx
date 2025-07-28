@@ -438,7 +438,7 @@ export default function OnboardingContainer({
     touchAction: state.isKeyboardVisible ? 'none' : 'auto',
     // Enhanced touch interactions
     WebkitOverflowScrolling: 'touch' as 'touch',
-    overscrollBehavior: 'contain',
+    overscrollBehavior: 'contain' as 'contain',
     // Improved spacing and layout
     padding: isClient && typeof window !== 'undefined' ? (
       window.innerWidth <= 414 ? 
@@ -457,7 +457,7 @@ export default function OnboardingContainer({
     ) : '16px',
     // Minimum touch target considerations
     minHeight: 'min-content',
-    position: 'relative'
+    position: 'relative' as 'relative'
   }), [state.isKeyboardVisible, isClient])
 
   return (
