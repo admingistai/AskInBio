@@ -139,12 +139,13 @@ async function main() {
     }),
   ])
 
-  // Create links for demo user
+  // Create links for demo user (including all 6 social platforms)
   await Promise.all([
+    // Social platform links
     prisma.link.create({
       data: {
-        title: '🚀 AskInBio Features',
-        url: 'https://askinbio.com/features',
+        title: '💻 GitHub',
+        url: 'https://github.com/demo',
         order: 0,
         active: true,
         userId: demoUser.id,
@@ -152,8 +153,8 @@ async function main() {
     }),
     prisma.link.create({
       data: {
-        title: '📚 Documentation',
-        url: 'https://docs.askinbio.com',
+        title: '🐦 Twitter',
+        url: 'https://twitter.com/demo',
         order: 1,
         active: true,
         userId: demoUser.id,
@@ -161,9 +162,46 @@ async function main() {
     }),
     prisma.link.create({
       data: {
-        title: '💳 Pricing',
-        url: 'https://askinbio.com/pricing',
+        title: '💼 LinkedIn',
+        url: 'https://linkedin.com/in/demo',
         order: 2,
+        active: true,
+        userId: demoUser.id,
+      },
+    }),
+    prisma.link.create({
+      data: {
+        title: '📸 Instagram',
+        url: 'https://instagram.com/demo',
+        order: 3,
+        active: true,
+        userId: demoUser.id,
+      },
+    }),
+    prisma.link.create({
+      data: {
+        title: '🎥 YouTube',
+        url: 'https://youtube.com/@demo',
+        order: 4,
+        active: true,
+        userId: demoUser.id,
+      },
+    }),
+    prisma.link.create({
+      data: {
+        title: '🎵 TikTok',
+        url: 'https://tiktok.com/@demo',
+        order: 5,
+        active: true,
+        userId: demoUser.id,
+      },
+    }),
+    // Regular links
+    prisma.link.create({
+      data: {
+        title: 'My Portfolio Website',
+        url: 'https://demo.portfolio.com',
+        order: 6,
         active: true,
         userId: demoUser.id,
       },

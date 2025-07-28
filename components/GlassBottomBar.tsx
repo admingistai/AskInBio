@@ -18,7 +18,7 @@ export default function GlassBottomBar({ username }: GlassBottomBarProps) {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 glass-footer glass-critical">
+    <div className="glass-footer glass-critical">
       {/* Glass overlay for extra effect */}
       <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent pointer-events-none" />
       
