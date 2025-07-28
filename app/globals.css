@@ -170,6 +170,117 @@
     min-height: calc(100vh + 100px);
   }
 
+  /* Mobile-Optimized Onboarding Styles */
+  .onboarding-widget {
+    /* Enhanced GPU acceleration for smooth animations */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    
+    /* Smooth height transitions for keyboard events */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease-out;
+    
+    /* Enhanced backdrop blur for better separation */
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    
+    /* Safe area support for modern devices */
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  
+  .onboarding-widget.keyboard-visible {
+    /* Enhanced keyboard positioning */
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                height 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
+    /* Prevent content overflow when keyboard is visible */
+    overflow: hidden;
+  }
+  
+  .onboarding-widget.keyboard-hidden {
+    /* Smooth return to center when keyboard hides */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .onboarding-content {
+    /* Enhanced mobile touch interactions */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    
+    /* Smooth scrolling for all devices */
+    scroll-behavior: smooth;
+    
+    /* Performance optimizations */
+    contain: layout style paint;
+    will-change: scroll-position;
+  }
+  
+  /* Device-specific optimizations */
+  @media (max-width: 375px) {
+    .onboarding-widget {
+      /* iPhone SE/mini: tighter spacing */
+      padding-left: max(12px, env(safe-area-inset-left) + 8px);
+      padding-right: max(12px, env(safe-area-inset-right) + 8px);
+    }
+    
+    .onboarding-content {
+      /* Optimized for small screens */
+      padding: clamp(12px, 3vw, 16px);
+      gap: clamp(8px, 2vw, 12px);
+    }
+  }
+  
+  @media (max-width: 414px) and (orientation: landscape) {
+    .onboarding-widget {
+      /* Landscape phone optimization */
+      max-height: calc(100vh - 40px);
+      padding-top: max(8px, env(safe-area-inset-top));
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+  }
+  
+  @media (min-width: 640px) {
+    .onboarding-widget {
+      /* Tablet and desktop: more generous spacing */
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+    
+    .onboarding-content {
+      padding: clamp(20px, 4vw, 32px);
+      gap: clamp(16px, 3vw, 24px);
+    }
+  }
+  
+  /* Enhanced touch targets for mobile */
+  .onboarding-content button,
+  .onboarding-content input,
+  .onboarding-content textarea {
+    min-height: 44px; /* Apple/Google recommended minimum */
+    min-width: 44px;
+    touch-action: manipulation; /* Prevents double-tap zoom */
+  }
+  
+  /* Dynamic viewport support */
+  @supports (height: 100dvh) {
+    .onboarding-widget {
+      height: 100dvh; /* Use dynamic viewport when supported */
+    }
+  }
+  
+  /* Safe area support */
+  @supports (padding: max(0px, env(safe-area-inset-top))) {
+    .onboarding-widget {
+      padding-top: max(20px, env(safe-area-inset-top) + 10px);
+      padding-bottom: max(20px, env(safe-area-inset-bottom) + 10px);
+    }
+  }
+
   /* Glass Button */
   .glass-button {
     @apply glass-surface rounded-xl px-6 py-3 transition-all duration-200;

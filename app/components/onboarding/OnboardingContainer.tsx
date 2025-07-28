@@ -344,59 +344,123 @@ export default function OnboardingContainer({
     }
   }, [isVisible, state.isFocused, onClose])
 
-  // Memoize styles for performance
+  // Memoize styles for performance with enhanced mobile spacing
   const containerStyles = useMemo(() => {
-    // Safari may need a small buffer to account for bottom bar
-    const safariBuffer = isSafari && state.isKeyboardVisible ? 5 : 0;
+    // Enhanced safe area and device-specific adjustments
+    const safariBuffer = isSafari && state.isKeyboardVisible ? 8 : 0;
+    const keyboardBuffer = state.isKeyboardVisible ? 20 : 0;
     
     // Use consistent values during SSR and hydration
     let width = '480px';
     let maxHeight = '600px';
+    let horizontalPadding = '16px';
+    let verticalOffset = '80px';
     
     // Only apply responsive values after client mount
     if (isClient && typeof window !== 'undefined') {
-      // Responsive width with screen edge padding
-      width = window.innerWidth < 640 ? 'calc(100vw - 32px)' : // Mobile: 16px padding each side
-        window.innerWidth < 1024 ? 'min(480px, calc(100vw - 40px))' : // Tablet: 480px max
-        'min(520px, calc(100vw - 48px))'; // Desktop: 520px max
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
       
-      // Responsive height
-      maxHeight = window.innerHeight < 700 ? 'calc(100vh - 80px)' : // Small screens
-        window.innerHeight < 900 ? 'calc(100vh - 120px)' : // Medium screens
-        '600px'; // Large screens
+      // Enhanced responsive width with proper safe area handling
+      if (vw <= 375) { // iPhone SE/mini
+        width = 'calc(100vw - max(20px, env(safe-area-inset-left) + env(safe-area-inset-right) + 16px))';
+        horizontalPadding = 'max(10px, env(safe-area-inset-left) + 8px)';
+      } else if (vw <= 414) { // Standard phones
+        width = 'calc(100vw - max(24px, env(safe-area-inset-left) + env(safe-area-inset-right) + 20px))';
+        horizontalPadding = 'max(12px, env(safe-area-inset-left) + 10px)';
+      } else if (vw <= 640) { // Large phones
+        width = 'calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right) + 24px))';
+        horizontalPadding = 'max(16px, env(safe-area-inset-left) + 12px)';
+      } else if (vw <= 1024) { // Tablets
+        width = 'min(480px, calc(100vw - 48px))';
+        horizontalPadding = '24px';
+      } else { // Desktop
+        width = 'min(520px, calc(100vw - 64px))';
+        horizontalPadding = '32px';
+      }
+      
+      // Enhanced responsive height with safe area consideration
+      if (vh <= 667) { // Small screens (iPhone SE)
+        maxHeight = 'calc(100vh - max(60px, env(safe-area-inset-top) + env(safe-area-inset-bottom) + 40px))';
+        verticalOffset = 'max(30px, env(safe-area-inset-top) + 20px)';
+      } else if (vh <= 736) { // Medium screens
+        maxHeight = 'calc(100vh - max(80px, env(safe-area-inset-top) + env(safe-area-inset-bottom) + 60px))';
+        verticalOffset = 'max(40px, env(safe-area-inset-top) + 30px)';
+      } else if (vh <= 896) { // Standard screens
+        maxHeight = 'calc(100vh - max(100px, env(safe-area-inset-top) + env(safe-area-inset-bottom) + 80px))';
+        verticalOffset = 'max(50px, env(safe-area-inset-top) + 40px)';
+      } else { // Large screens
+        maxHeight = '600px';
+        verticalOffset = '60px';
+      }
     }
     
     return {
       width,
       maxWidth: '520px',
       height: state.isKeyboardVisible ? 
-        `min(${state.widgetHeight}px, calc(100vh - ${state.keyboardHeight + 40}px))` : 
+        `min(${state.widgetHeight}px, calc(100vh - ${state.keyboardHeight + keyboardBuffer + 20}px))` : 
         `min(${state.widgetHeight}px, ${maxHeight})`,
       maxHeight,
       left: '50%',
+      paddingLeft: horizontalPadding,
+      paddingRight: horizontalPadding,
       ...(state.isKeyboardVisible ? {
-        // Lock widget bottom to keyboard top by using keyboard height
+        // Enhanced keyboard positioning with safe area support
         transform: 'translateX(-50%)',
         position: 'fixed' as const,
-        bottom: `${state.keyboardHeight + safariBuffer}px`, // Position above keyboard with optional Safari buffer
-        top: 'auto'
-        // Removed safe area padding as we're positioning relative to keyboard
+        bottom: `max(${state.keyboardHeight + safariBuffer + keyboardBuffer}px, env(safe-area-inset-bottom) + ${state.keyboardHeight + safariBuffer}px)`,
+        top: 'auto',
+        // Ensure content doesn't get cut off by safe areas
+        marginLeft: 'max(0px, env(safe-area-inset-left))',
+        marginRight: 'max(0px, env(safe-area-inset-right))'
       } : {
-        // Center when keyboard is hidden
+        // Enhanced centering with safe area consideration
         transform: 'translate(-50%, -50%)',
         position: 'fixed' as const,
         top: '50%',
-        bottom: 'auto'
+        bottom: 'auto',
+        // Add safe area margins for notched devices
+        marginTop: `max(0px, env(safe-area-inset-top) / 2)`,
+        marginLeft: 'max(0px, env(safe-area-inset-left))',
+        marginRight: 'max(0px, env(safe-area-inset-right))'
       }),
-      willChange: 'transform',
-      background: 'transparent'
+      willChange: 'transform, height',
+      background: 'transparent',
+      // Enhanced performance and smooth transitions
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      contain: 'layout style paint',
+      // iOS momentum scrolling support
+      WebkitOverflowScrolling: 'touch'
     }
   }, [state.isKeyboardVisible, state.widgetHeight, state.keyboardHeight, isSafari, isClient])
 
   const contentStyles = useMemo(() => ({
     overflow: state.isKeyboardVisible ? 'hidden' : 'auto',
-    touchAction: state.isKeyboardVisible ? 'none' : 'auto'
-  }), [state.isKeyboardVisible])
+    touchAction: state.isKeyboardVisible ? 'none' : 'auto',
+    // Enhanced touch interactions
+    WebkitOverflowScrolling: 'touch',
+    overscrollBehavior: 'contain',
+    // Improved spacing and layout
+    padding: isClient && typeof window !== 'undefined' ? (
+      window.innerWidth <= 414 ? 
+        'clamp(16px, 4vw, 24px)' : // Small phones: responsive padding
+        window.innerWidth <= 640 ? 
+        'clamp(20px, 5vw, 32px)' : // Large phones: more generous
+        '24px' // Tablets and up: fixed padding
+    ) : '20px',
+    // Enhanced content flow
+    display: 'flex',
+    flexDirection: 'column',
+    gap: isClient && typeof window !== 'undefined' ? (
+      window.innerWidth <= 414 ? 
+        'clamp(12px, 3vw, 16px)' : // Tighter spacing on small screens
+        'clamp(16px, 4vw, 24px)' // More generous on larger screens
+    ) : '16px',
+    // Minimum touch target considerations
+    minHeight: 'min-content',
+    position: 'relative'
+  }), [state.isKeyboardVisible, isClient])
 
   return (
     <div
@@ -404,10 +468,24 @@ export default function OnboardingContainer({
       className={cn(
         'onboarding-widget',
         'fixed z-30',
+        // Enhanced transitions with proper easing
         'transition-all duration-300 ease-out',
+        // Better visibility handling
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
-        state.isKeyboardVisible ? 'keyboard-visible' : '',
-        debugMode && 'debug-border'
+        // Keyboard state classes for CSS targeting
+        state.isKeyboardVisible ? 'keyboard-visible' : 'keyboard-hidden',
+        // Mobile-specific classes
+        'supports-[height:100dvh]:h-[100dvh]', // Dynamic viewport support
+        'supports-[env(safe-area-inset-top)]:pt-[env(safe-area-inset-top)]', // Safe area support
+        // Performance optimizations
+        'transform-gpu will-change-transform',
+        // Debug mode
+        debugMode && 'debug-border',
+        // Enhanced mobile styling
+        'rounded-xl sm:rounded-2xl', // Responsive border radius
+        'shadow-2xl shadow-black/25', // Enhanced shadow for depth
+        'backdrop-blur-xl', // Stronger blur for better separation
+        'border border-white/10' // Subtle border for definition
       )}
       style={containerStyles}
     >
