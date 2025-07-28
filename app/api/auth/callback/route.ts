@@ -24,9 +24,17 @@ export async function GET(request: Request) {
   const error = requestUrl.searchParams.get('error')
   const error_description = requestUrl.searchParams.get('error_description')
 
+  console.log('OAuth callback received:', {
+    origin: requestUrl.origin,
+    code: code ? 'present' : 'missing',
+    error,
+    error_description,
+    next
+  })
+
   if (error) {
     // Handle OAuth errors
-    console.error('OAuth error:', error, error_description)
+    console.error('OAuth provider error:', { error, error_description })
     return NextResponse.redirect(
       `${requestUrl.origin}/login?error=${encodeURIComponent(
         error_description || 'Authentication failed'
@@ -38,7 +46,8 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     
     try {
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+      console.log('Attempting to exchange code for session...')
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
       
       if (exchangeError) {
         console.error('Code exchange error:', exchangeError)
@@ -49,7 +58,12 @@ export async function GET(request: Request) {
         )
       }
       
+      if (data.user) {
+        console.log('OAuth authentication successful for user:', data.user.email)
+      }
+      
       // Successful authentication - redirect to intended destination
+      console.log('Redirecting to:', `${requestUrl.origin}${next}`)
       return NextResponse.redirect(`${requestUrl.origin}${next}`)
     } catch (error) {
       console.error('Unexpected error during OAuth callback:', error)
@@ -62,5 +76,6 @@ export async function GET(request: Request) {
   }
 
   // No code or error - invalid callback
+  console.warn('Invalid OAuth callback - no code or error parameter')
   return NextResponse.redirect(`${requestUrl.origin}/login`)
 }

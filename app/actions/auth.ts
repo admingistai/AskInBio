@@ -248,23 +248,64 @@ export async function signOut() {
 }
 
 export async function signInWithGoogle() {
-  const supabase = await createClient()
-  const headersList = await headers()
-  const origin = headersList.get('origin')
+  try {
+    const supabase = await createClient()
+    const headersList = await headers()
+    
+    // Get origin with fallback to host header or environment variable
+    let origin = headersList.get('origin')
+    
+    if (!origin) {
+      const host = headersList.get('host')
+      const protocol = headersList.get('x-forwarded-proto') || 'https'
+      origin = host ? `${protocol}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL || null)
+    }
+    
+    if (!origin) {
+      console.error('Unable to determine origin for OAuth redirect')
+      return { 
+        error: 'Configuration error: Unable to determine redirect URL',
+        code: 'CONFIG_ERROR'
+      }
+    }
+    
+    const redirectTo = `${origin}/api/auth/callback`
+    console.log('OAuth redirect URL:', redirectTo) // Debug log
+    
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    })
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${origin}/api/auth/callback`,
-    },
-  })
+    if (error) {
+      console.error('Google OAuth error:', error)
+      return { 
+        error: error.message,
+        code: 'OAUTH_ERROR'
+      }
+    }
 
-  if (error) {
-    return { error: error.message }
-  }
-
-  if (data.url) {
-    redirect(data.url)
+    if (data.url) {
+      console.log('Redirecting to Google OAuth URL:', data.url) // Debug log
+      redirect(data.url)
+    } else {
+      return { 
+        error: 'OAuth initialization failed',
+        code: 'OAUTH_FAILED'
+      }
+    }
+  } catch (error) {
+    console.error('Unexpected error in Google OAuth:', error)
+    return { 
+      error: 'An unexpected error occurred during OAuth',
+      code: 'INTERNAL_ERROR'
+    }
   }
 }
 
