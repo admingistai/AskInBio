@@ -225,7 +225,7 @@ export default function OnboardingContainer({
     } else if (!keyboardVisible && state.isKeyboardVisible) {
       onKeyboardHide?.()
     }
-  }, [state.isFocused, state.isKeyboardVisible, isIOS, onKeyboardShow, onKeyboardHide])
+  }, [state.isFocused, state.isKeyboardVisible, isIOS, isSafari, onKeyboardShow, onKeyboardHide])
 
   // Debounced viewport handler - use shorter delay for better responsiveness
   const debouncedViewportChange = useMemo(
@@ -429,9 +429,7 @@ export default function OnboardingContainer({
       background: 'transparent',
       // Enhanced performance and smooth transitions
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      contain: 'layout style paint',
-      // iOS momentum scrolling support
-      WebkitOverflowScrolling: 'touch'
+      contain: 'layout style paint' as 'layout style paint'
     }
   }, [state.isKeyboardVisible, state.widgetHeight, state.keyboardHeight, isSafari, isClient])
 
@@ -439,7 +437,7 @@ export default function OnboardingContainer({
     overflow: state.isKeyboardVisible ? 'hidden' : 'auto',
     touchAction: state.isKeyboardVisible ? 'none' : 'auto',
     // Enhanced touch interactions
-    WebkitOverflowScrolling: 'touch',
+    WebkitOverflowScrolling: 'touch' as 'touch',
     overscrollBehavior: 'contain',
     // Improved spacing and layout
     padding: isClient && typeof window !== 'undefined' ? (
