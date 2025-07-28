@@ -21,7 +21,15 @@ export default function ThemeToggle({ onThemeChange }: ThemeToggleProps = {}) {
       try {
         const result = await getUserTheme()
         if (result.success && result.data) {
-          setIsDarkMode(result.data.isDarkMode)
+          const isDark = result.data.isDarkMode
+          setIsDarkMode(isDark)
+          
+          // Apply theme to document
+          if (isDark) {
+            document.documentElement.classList.add('dark')
+          } else {
+            document.documentElement.classList.remove('dark')
+          }
         }
       } catch (error) {
         console.error('Failed to load theme:', error)
@@ -37,6 +45,13 @@ export default function ThemeToggle({ onThemeChange }: ThemeToggleProps = {}) {
     setIsDarkMode(newMode)
     setIsSaving(true)
 
+    // Apply theme to document immediately for instant feedback
+    if (newMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+
     try {
       const result = await updateThemeMode(newMode)
       if (result.success) {
@@ -46,11 +61,23 @@ export default function ThemeToggle({ onThemeChange }: ThemeToggleProps = {}) {
       } else {
         // Revert on error
         setIsDarkMode(!newMode)
+        // Revert document class
+        if (!newMode) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
         toast.error(result.error || 'Failed to update theme')
       }
     } catch (error) {
       // Revert on error
       setIsDarkMode(!newMode)
+      // Revert document class
+      if (!newMode) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
       toast.error('Failed to update theme')
     } finally {
       setIsSaving(false)
@@ -69,6 +96,7 @@ export default function ThemeToggle({ onThemeChange }: ThemeToggleProps = {}) {
     <button
       onClick={handleToggle}
       disabled={isSaving}
+      data-testid="theme-toggle"
       className={cn(
         "glass-pill flex items-center gap-2 px-3 py-1.5",
         "transition-all duration-300 hover:scale-105",

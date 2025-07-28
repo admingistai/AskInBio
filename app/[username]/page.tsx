@@ -7,6 +7,7 @@ import GlassBottomBar from '@/components/GlassBottomBar'
 import GlassDebugger from '@/components/GlassDebugger'
 import GlassShimmerLoader from '@/components/GlassShimmerLoader'
 import GlassCriticalStyles from '@/components/GlassCriticalStyles'
+import ThemeProvider from '@/components/ThemeProvider'
 
 interface ProfilePageProps {
   params: Promise<{
@@ -58,11 +59,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { user, theme } = profile
 
   return (
-    <>
+    <ThemeProvider isDarkMode={theme?.isDarkMode || false}>
       {/* Critical Glass Styles */}
       <GlassCriticalStyles />
       
-      <div className={`min-h-screen color-mesh-bg color-mesh-animated relative overflow-hidden ${theme?.isDarkMode ? 'dark' : ''}`}>
+      <div className="min-h-screen color-mesh-bg color-mesh-animated relative overflow-hidden">
         {/* Fixed Glass Header */}
         <ProfileHeader 
           user={user}
@@ -104,7 +105,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       
       {/* Shimmer Loader */}
       <GlassShimmerLoader />
-    </div>
-    </>
+      </div>
+    </ThemeProvider>
   )
 }
