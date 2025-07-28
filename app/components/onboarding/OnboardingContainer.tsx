@@ -449,7 +449,7 @@ export default function OnboardingContainer({
     ) : '20px',
     // Enhanced content flow
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column' as 'column',
     gap: isClient && typeof window !== 'undefined' ? (
       window.innerWidth <= 414 ? 
         'clamp(12px, 3vw, 16px)' : // Tighter spacing on small screens
