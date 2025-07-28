@@ -280,6 +280,19 @@
       padding-bottom: max(20px, env(safe-area-inset-bottom) + 10px);
     }
   }
+  
+  /* Smooth theme transitions */
+  * {
+    transition-property: background-color, border-color, color;
+    transition-duration: 300ms;
+    transition-timing-function: ease-out;
+  }
+  
+  /* Prevent transitions on specific elements */
+  .no-transition,
+  .no-transition * {
+    transition: none !important;
+  }
 
   /* Glass Button */
   .glass-button {
@@ -307,6 +320,43 @@
   .glass-link:hover {
     background: rgba(255, 255, 255, 0.12);
     transform: translateY(-2px) scale(1.02);
+  }
+  
+  /* Dark mode glass effects */
+  .dark .glass-link {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark .glass-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+  }
+  
+  .dark .glass-header {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .dark .glass-footer {
+    background: rgba(255, 255, 255, 0.05);
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  
+  /* Dark mode color mesh */
+  .dark .color-mesh-bg {
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(184, 255, 227, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(192, 129, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.05) 0%, transparent 50%),
+      linear-gradient(180deg, rgba(10, 10, 12, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
   }
 
   /* Glass Text Field */
@@ -492,6 +542,32 @@
     padding: 4px 12px;
     border-radius: 9999px;
     font-size: 0.875rem;
+  }
+
+  /* Glass Pill - Generic pill button style */
+  .glass-pill {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+  }
+  
+  .glass-pill:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
+    transform: scale(1.02);
+  }
+  
+  .dark .glass-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .dark .glass-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
   }
 
   /* Glass Toggle Switch */

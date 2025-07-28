@@ -260,6 +260,12 @@ export async function signInWithGoogle() {
     origin = host ? `${protocol}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL || null)
   }
   
+  // Ensure we never use localhost in production
+  if (origin && process.env.NODE_ENV === 'production' && origin.includes('localhost')) {
+    console.error('Invalid origin detected in production:', origin)
+    origin = process.env.NEXT_PUBLIC_SITE_URL || null
+  }
+  
   if (!origin) {
     console.error('Unable to determine origin for OAuth redirect')
     return { 
@@ -269,12 +275,17 @@ export async function signInWithGoogle() {
   }
   
   const redirectTo = `${origin}/api/auth/callback`
-  console.log('OAuth redirect URL:', redirectTo) // Debug log
+  const fullRedirectUrl = `${redirectTo}?next=/dashboard`
+  
+  console.log('OAuth configuration:')
+  console.log('- Origin:', origin)
+  console.log('- Base redirect URL:', redirectTo)
+  console.log('- Full redirect URL with next param:', fullRedirectUrl)
   
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo,
+      redirectTo: fullRedirectUrl,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',

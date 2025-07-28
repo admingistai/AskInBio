@@ -63,6 +63,7 @@ model Theme {
   primaryColor    String      @map("primary_color")
   backgroundColor String      @map("background_color")
   fontFamily      String      @map("font_family")
+  isDarkMode      Boolean     @default(false) @map("is_dark_mode")
   userId          String      @map("user_id") @db.Uuid
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")

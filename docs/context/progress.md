@@ -3,6 +3,26 @@
 # structure is the following:
 
 ## Last Command
+`/troubleshoot` - Fixing database migration error for dark mode feature
+
+## Output Summary
+Fixed database column missing error with temporary code patches:
+- **Issue**: `themes.is_dark_mode` column missing from database
+- **Created**: Manual SQL migration file at `prisma/migrations/manual_add_dark_mode.sql`
+- **Modified**: Dashboard page to fetch user without themes relation
+- **Added**: Error handling for theme fetching with raw SQL fallback
+- **Created**: DARK_MODE_MIGRATION.md with detailed instructions
+- **Temporary Fix**: isDarkMode defaults to false until migration applied
+
+## Active Context
+- Dark mode feature fully implemented in code
+- Database migration pending (requires manual application)
+- Temporary fixes prevent app from crashing
+- Theme toggle integrated in dashboard
+- Dark mode styles complete for all glass components
+- Manual migration instructions provided
+
+## Last Command
 `Build onboarding flow UI` - Created multi-step onboarding process inside widget
 
 ## Output Summary

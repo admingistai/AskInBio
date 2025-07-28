@@ -62,7 +62,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       {/* Critical Glass Styles */}
       <GlassCriticalStyles />
       
-      <div className="min-h-screen color-mesh-bg color-mesh-animated relative overflow-hidden">
+      <div className={`min-h-screen color-mesh-bg color-mesh-animated relative overflow-hidden ${theme?.isDarkMode ? 'dark' : ''}`}>
         {/* Fixed Glass Header */}
         <ProfileHeader 
           user={user}

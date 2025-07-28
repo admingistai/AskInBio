@@ -51,5 +51,11 @@ export default async function DashboardPage() {
   
   const links = await getUserLinks(authUser.id)
   
-  return <DashboardClient user={user} initialLinks={links} />
+  // Get user's theme
+  const theme = await prisma.theme.findFirst({
+    where: { userId: authUser.id },
+    orderBy: { createdAt: 'desc' }
+  })
+  
+  return <DashboardClient user={user} initialLinks={links} theme={theme} />
 }

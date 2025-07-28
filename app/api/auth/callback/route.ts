@@ -20,7 +20,9 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const next = requestUrl.searchParams.get('next') ?? '/dashboard'
+  const next = requestUrl.searchParams.get('next') || 
+               requestUrl.searchParams.get('redirect_to') || 
+               '/dashboard'
   const error = requestUrl.searchParams.get('error')
   const error_description = requestUrl.searchParams.get('error_description')
 
@@ -60,10 +62,14 @@ export async function GET(request: Request) {
       
       if (data.user) {
         console.log('OAuth authentication successful for user:', data.user.email)
+        console.log('User metadata:', data.user.user_metadata)
       }
       
       // Successful authentication - redirect to intended destination
-      console.log('Redirecting to:', `${requestUrl.origin}${next}`)
+      console.log('OAuth successful, redirecting to:', next)
+      console.log('Full redirect URL:', `${requestUrl.origin}${next}`)
+      console.log('Session data:', data.session ? 'Session created' : 'No session')
+      
       return NextResponse.redirect(`${requestUrl.origin}${next}`)
     } catch (error) {
       console.error('Unexpected error during OAuth callback:', error)

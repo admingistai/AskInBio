@@ -2,24 +2,27 @@
 
 import { useState, useCallback } from 'react'
 import { Plus } from 'lucide-react'
-import { User, Link } from '@prisma/client'
+import { User, Link, Theme } from '@prisma/client'
 import QuickStats from '@/components/dashboard/QuickStats'
 import LinkList from '@/components/dashboard/LinkList'
 import LinkEditor from '@/components/dashboard/LinkEditor'
 import PreviewPanel from '@/components/dashboard/PreviewPanel'
+import ThemeToggle from '@/components/dashboard/ThemeToggle'
 import { getUserLinksAction } from '@/app/actions/links'
 import { toast } from 'sonner'
 
 interface DashboardClientProps {
   user: User & { links: Link[] }
   initialLinks: Link[]
+  theme?: Theme | null
 }
 
-export default function DashboardClient({ user, initialLinks }: DashboardClientProps) {
+export default function DashboardClient({ user, initialLinks, theme }: DashboardClientProps) {
   const [links, setLinks] = useState(initialLinks)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [editingLink, setEditingLink] = useState<Link | undefined>()
   const [deviceMode, setDeviceMode] = useState<'mobile' | 'desktop'>('mobile')
+  const [currentTheme, setCurrentTheme] = useState(theme)
   
   const refreshLinks = useCallback(async () => {
     try {
@@ -61,7 +64,12 @@ export default function DashboardClient({ user, initialLinks }: DashboardClientP
     <>
       {/* Analytics Overview */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-6">Dashboard Overview</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-white">Dashboard Overview</h1>
+          <ThemeToggle onThemeChange={(isDarkMode) => {
+            setCurrentTheme(prev => prev ? { ...prev, isDarkMode } : null)
+          }} />
+        </div>
         <QuickStats links={links} profileViews={0} />
       </div>
       
@@ -114,6 +122,7 @@ export default function DashboardClient({ user, initialLinks }: DashboardClientP
           <div className="dashboard-panel p-0 h-[600px] lg:h-[calc(100vh-16rem)] sticky top-6">
             <PreviewPanel 
               user={userWithLinks}
+              theme={currentTheme}
               deviceMode={deviceMode}
               onDeviceModeChange={setDeviceMode}
             />

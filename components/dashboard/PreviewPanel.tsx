@@ -2,29 +2,31 @@
 
 import { useEffect, useRef } from 'react'
 import { Smartphone, Monitor, RefreshCw } from 'lucide-react'
-import { Link, User } from '@prisma/client'
+import { Link, User, Theme } from '@prisma/client'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 interface PreviewPanelProps {
   user: User & { links: Link[] }
+  theme?: Theme | null
   deviceMode?: 'mobile' | 'desktop'
   onDeviceModeChange?: (mode: 'mobile' | 'desktop') => void
 }
 
 export default function PreviewPanel({ 
   user, 
+  theme,
   deviceMode = 'mobile',
   onDeviceModeChange 
 }: PreviewPanelProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   
-  // Refresh preview when links change
+  // Refresh preview when links or theme change
   useEffect(() => {
     if (iframeRef.current) {
       iframeRef.current.src = iframeRef.current.src
     }
-  }, [user.links])
+  }, [user.links, theme?.isDarkMode])
   
   const handleRefresh = () => {
     if (iframeRef.current) {
@@ -99,7 +101,10 @@ export default function PreviewPanel({
             "ring-1 ring-white/20"
           )}>
             {/* Fake Profile Preview - we'll use iframe in production */}
-            <div className="h-full overflow-y-auto bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20">
+            <div className={cn(
+              "h-full overflow-y-auto bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20",
+              theme?.isDarkMode && "dark"
+            )}>
               {/* Profile Header */}
               <div className="glass-surface-strong backdrop-blur-2xl px-6 py-8 text-center">
                 <div className="relative h-24 w-24 mx-auto mb-4">
