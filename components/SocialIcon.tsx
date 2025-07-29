@@ -66,7 +66,6 @@ export default function SocialIcon({ social, username }: SocialIconProps) {
       onClick={handleClick}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
-      onMouseLeave={() => setIsPressed(false)}
       className={`
         relative w-10 h-10 max-[374px]:w-9 max-[374px]:h-9 rounded-xl
         backdrop-blur-md transition-all duration-200
@@ -91,6 +90,7 @@ export default function SocialIcon({ social, username }: SocialIconProps) {
         `
       }}
       onMouseLeave={(e) => {
+        setIsPressed(false)
         e.currentTarget.style.background = colors.bg
         e.currentTarget.style.borderColor = colors.border
         e.currentTarget.style.boxShadow = `
