@@ -227,7 +227,15 @@ function parseQAFromContent(content: string) {
  * Generates contact methods from user context
  */
 function generateContactMethods(userContext?: any) {
-  const methods = []
+  const methods: Array<{
+    id: string;
+    type: 'social' | 'website';
+    label: string;
+    value: string;
+    url: string;
+    icon?: string;
+    preferred?: boolean;
+  }> = []
   
   // Add social links
   if (userContext?.socialLinks) {
