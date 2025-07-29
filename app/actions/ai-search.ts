@@ -1,13 +1,9 @@
 'use server'
 
-import OpenAI from 'openai'
+import { generateText, streamText } from 'ai'
+import { openai } from '@ai-sdk/openai'
 import { AISearchRequest, AISearchResponse } from '@/types/ai'
 import { parseAIResponse, extractSuggestedQuestions } from '@/lib/ai/response-parser'
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 /**
  * Server action for AI search with streaming support
@@ -22,19 +18,16 @@ export async function searchWithAI(request: AISearchRequest): Promise<AISearchRe
     // Build system message with user context
     const systemMessage = buildSystemMessage(request)
     
-    // Create completion with streaming
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemMessage },
-        { role: 'user', content: request.query }
-      ],
+    // Create completion with AI SDK
+    const { text, usage } = await generateText({
+      model: openai('gpt-4o-mini'),
+      system: systemMessage,
+      prompt: request.query,
       temperature: 0.7,
-      max_tokens: 1000,
-      stream: false // We'll handle streaming in the client component
+      maxTokens: 1000,
     })
 
-    const content = response.choices[0]?.message?.content || ''
+    const content = text
     
     // Parse the response for structured content
     const parsedContent = parseAIResponse(content, request.context)
@@ -48,7 +41,7 @@ export async function searchWithAI(request: AISearchRequest): Promise<AISearchRe
       suggestedQuestions,
       metadata: {
         parsedContent: parsedContent.data,
-        usage: response.usage
+        usage: usage
       }
     }
   } catch (error) {
@@ -81,15 +74,12 @@ export async function streamAISearch(request: AISearchRequest) {
 
     const systemMessage = buildSystemMessage(request)
     
-    const stream = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemMessage },
-        { role: 'user', content: request.query }
-      ],
+    const stream = await streamText({
+      model: openai('gpt-4o-mini'),
+      system: systemMessage,
+      prompt: request.query,
       temperature: 0.7,
-      max_tokens: 1000,
-      stream: true
+      maxTokens: 1000,
     })
 
     return stream
@@ -182,20 +172,19 @@ export async function generateSuggestedQuestions(
     
     Return only the questions, one per line, without numbers or bullets.`
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemMessage }
-      ],
+    const { text } = await generateText({
+      model: openai('gpt-4o-mini'),
+      system: systemMessage,
+      prompt: '',
       temperature: 0.8,
-      max_tokens: 200
+      maxTokens: 200
     })
 
-    const content = response.choices[0]?.message?.content || ''
+    const content = text
     const questions = content
       .split('\n')
-      .map(q => q.trim())
-      .filter(q => q.length > 0)
+      .map((q: string) => q.trim())
+      .filter((q: string) => q.length > 0)
       .slice(0, 4)
     
     return questions.length > 0 ? questions : [
